@@ -1,0 +1,8 @@
+{
+  "name": "ingressou",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": ".venv\\Scripts\\python.exe dev.py"
+  }
+}

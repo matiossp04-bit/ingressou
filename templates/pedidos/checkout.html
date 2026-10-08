@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load dinheiro %}
+{% block titulo %}Checkout — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="passos">
+  <div class="passo feito">1 · Escolha dos ingressos</div>
+  <div class="passo ativo">2 · Seus dados</div>
+  <div class="passo">3 · Pagamento</div>
+  <div class="passo">4 · Ingressos</div>
+</div>
+
+<div class="card">
+  <h2 style="margin-bottom:12px">{{ evento.titulo }}</h2>
+  <table>
+    <tr><th>Ingresso</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Total</th></tr>
+    {% for linha in linhas %}
+    <tr>
+      <td>{{ linha.tipo.nome }}</td>
+      <td class="num">{{ linha.quantidade }}</td>
+      <td class="num">R$ {{ linha.tipo.preco|dinheiro }}</td>
+      <td class="num">R$ {{ linha.total|dinheiro }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td colspan="3">Subtotal dos ingressos</td>
+      <td class="num">R$ {{ subtotal|dinheiro }}</td>
+    </tr>
+    <tr>
+      <td colspan="3">Taxa de serviço Ingressou ({{ config.taxa_plataforma }}%)</td>
+      <td class="num">R$ {{ taxa|dinheiro }}</td>
+    </tr>
+    <tr style="border-top:2px solid var(--roxo)">
+      <td colspan="3"><strong>Total a pagar</strong></td>
+      <td class="num total-destaque">R$ {{ total|dinheiro }}</td>
+    </tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-bottom:8px">Seus dados</h2>
+  <p class="muted">Os ingressos com QR code ficam disponíveis logo após a confirmação do pagamento.</p>
+  <form method="post">
+    {% csrf_token %}
+    <label for="nome">Nome completo</label>
+    <input id="nome" name="nome" required>
+    <label for="email">E-mail</label>
+    <input id="email" name="email" type="email" required>
+    <label for="cpf">CPF</label>
+    <input id="cpf" name="cpf" required placeholder="000.000.000-00">
+    <p style="margin-top:22px"><button class="btn btn-block" type="submit">Ir para o pagamento →</button></p>
+  </form>
+</div>
+{% endblock %}

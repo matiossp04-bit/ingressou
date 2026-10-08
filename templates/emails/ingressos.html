@@ -1,0 +1,46 @@
+{% load dinheiro %}<!DOCTYPE html>
+<html lang="pt-BR">
+<body style="font-family:system-ui,sans-serif;background:#f6f6fa;padding:24px">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+    <div style="background:linear-gradient(90deg,#3d1ba8,#5b2ee5);color:#fff;padding:24px;text-align:center">
+      <div style="font-size:24px;font-weight:800">Ingressou<span style="color:#ffd166">.</span></div>
+    </div>
+    <div style="padding:28px">
+      <h1 style="font-size:22px;margin:0 0 8px">🎉 Compra confirmada!</h1>
+      <p style="color:#6b6b80;font-size:14px;margin:0 0 20px">
+        Olá {{ pedido.comprador_nome }}, seus ingressos estão garantidos:
+      </p>
+      <div style="background:#f6f6fa;border-radius:10px;padding:16px;margin-bottom:20px">
+        <strong style="font-size:16px">{{ pedido.evento.titulo }}</strong><br>
+        <span style="color:#6b6b80;font-size:14px">
+          📅 {{ pedido.evento.data_inicio|date:"d/m/Y \à\s H:i" }}<br>
+          📍 {{ pedido.evento.local }} — {{ pedido.evento.cidade }}
+        </span>
+      </div>
+      <table style="width:100%;font-size:14px;margin-bottom:20px">
+        {% for item in pedido.itens.all %}
+        <tr>
+          <td>{{ item.quantidade }}x {{ item.tipo_ingresso.nome }}</td>
+          <td style="text-align:right">R$ {{ item.total|dinheiro }}</td>
+        </tr>
+        {% endfor %}
+        <tr style="border-top:2px solid #5b2ee5;font-weight:700">
+          <td style="padding-top:8px">Total pago</td>
+          <td style="text-align:right;padding-top:8px">R$ {{ pedido.total|dinheiro }}</td>
+        </tr>
+      </table>
+      <p style="font-size:14px">
+        Os QR codes dos seus ingressos estão <strong>anexados a este e-mail</strong>.
+        Apresente na entrada do evento (celular ou impresso).
+      </p>
+      <a href="{{ link }}" style="display:block;background:#5b2ee5;color:#fff;text-align:center;
+         text-decoration:none;font-weight:700;padding:14px;border-radius:10px;margin-top:16px">
+        Ver meus ingressos
+      </a>
+      <p style="color:#9a9ab0;font-size:12px;margin-top:24px;text-align:center">
+        Pedido {{ pedido.uuid }} · Pagamento via Mercado Pago
+      </p>
+    </div>
+  </div>
+</body>
+</html>

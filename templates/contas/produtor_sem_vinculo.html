@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Área do produtor — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="card" style="text-align:center;max-width:560px;margin:30px auto">
+  <div style="font-size:40px;color:var(--roxo)">{% icon "mic" tamanho=40 %}</div>
+  <h1 style="font-size:22px;margin:10px 0">Quase lá!</h1>
+  <p style="color:var(--texto-suave);margin-bottom:16px">
+    Sua conta CNPJ está criada, mas ainda não foi vinculada a um cadastro de produtor.
+    A equipe Ingressou faz essa vinculação para você — assim que vincular,
+    seus eventos e repasses aparecem aqui automaticamente.
+  </p>
+  <a class="btn btn-sec" href="{% url 'minha_conta' %}">Voltar para minha conta</a>
+</div>
+{% endblock %}

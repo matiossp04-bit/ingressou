@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Pedido confirmado — Ingressou{% endblock %}
+{% block conteudo %}
+{% if pedido.status == "pago" %}
+<div class="card" style="text-align:center">
+  <div style="color:var(--verde)">{% icon "check" tamanho=56 %}</div>
+  <h1>Compra confirmada!</h1>
+  <p class="muted" style="margin-top:8px">
+    {{ pedido.evento.titulo }} · {{ pedido.evento.data_inicio|date:"d/m/Y H:i" }}<br>
+    Apresente o QR code na entrada do evento.
+  </p>
+</div>
+
+<div class="grade">
+  {% for item in pedido.itens.all %}
+    {% for ingresso in item.ingressos.all %}
+    <div class="card" style="text-align:center">
+      <h3>{{ item.tipo_ingresso.nome }}</h3>
+      <p class="muted">{{ pedido.comprador_nome }}</p>
+      {% if ingresso.qrcode %}
+      <img src="{{ ingresso.qrcode.url }}" alt="QR code do ingresso" width="200" style="margin:12px auto">
+      {% endif %}
+      <p class="muted">Código: {{ ingresso.codigo }}</p>
+      {% if ingresso.validado %}<p class="alerta">Já utilizado em {{ ingresso.usado_em|date:"d/m/Y H:i" }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <h1>Pedido ainda não pago</h1>
+  <p style="margin:12px 0">Assim que o pagamento for confirmado, seus ingressos aparecem aqui.</p>
+  <a class="btn" href="{% url 'pagamento' pedido.uuid %}">Ir para o pagamento</a>
+</div>
+{% endif %}
+{% endblock %}

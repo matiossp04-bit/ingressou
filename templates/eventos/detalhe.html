@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}{{ evento.titulo }} — Ingressou{% endblock %}
+
+{% block hero %}
+  {% if evento.imagem %}
+  <img class="banner-evento" src="{{ evento.imagem.url }}" alt="{{ evento.titulo }}">
+  {% else %}
+  <div class="banner-fallback"></div>
+  {% endif %}
+{% endblock %}
+
+{% block conteudo %}
+<div class="evento-grid">
+  <div class="evento-info">
+    <span class="data" style="color:var(--roxo);font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.06em">
+      {{ evento.get_categoria_display }} · {{ evento.cidade }}
+    </span>
+    <h1>{{ evento.titulo }}</h1>
+
+    <div class="info-linha">
+      <span class="icone">{% icon "calendar" tamanho=20 %}</span>
+      <div>
+        <strong>{{ evento.data_inicio|date:"l, d \d\e F \d\e Y" }}</strong>
+        <div class="muted">Abertura às {{ evento.data_inicio|date:"H:i" }}{% if evento.data_fim %} · Término {{ evento.data_fim|date:"H:i" }}{% endif %}</div>
+      </div>
+    </div>
+    <div class="info-linha">
+      <span class="icone">{% icon "pin" tamanho=20 %}</span>
+      <div>
+        <strong>{{ evento.local }}</strong>
+        <div class="muted">{{ evento.cidade }}</div>
+      </div>
+    </div>
+    <div class="info-linha">
+      <span class="icone">{% icon "mic" tamanho=20 %}</span>
+      <div>
+        <strong>Produção</strong>
+        <div class="muted">{{ evento.produtor.nome }}</div>
+      </div>
+    </div>
+
+    <h2 class="secao-titulo">Sobre o evento</h2>
+    <p style="white-space:pre-line;font-size:16px">{{ evento.descricao }}</p>
+  </div>
+
+  <div class="card-compra">
+    <div class="cabecalho">{% icon "ticket" tamanho=16 %} Ingressos</div>
+    <div class="corpo">
+      {% if evento.tipos_disponiveis %}
+      <form method="post" action="{% url 'comprar' evento.slug %}">
+        {% csrf_token %}
+        {% for tipo in evento.tipos_disponiveis %}
+        <div class="linha-ingresso">
+          <div>
+            <div class="nome">{{ tipo.nome }}</div>
+            <div class="preco">R$ {{ tipo.preco|dinheiro }} <span class="muted" style="font-weight:400">+ taxa</span></div>
+            <div class="disp">{{ tipo.disponivel }} disponíve{{ tipo.disponivel|pluralize:"l,is" }}</div>
+          </div>
+          <input type="number" name="tipo_{{ tipo.id }}" min="0" max="{{ tipo.max_por_pedido }}" value="0">
+        </div>
+        {% endfor %}
+        <p class="muted" style="margin:12px 0">A taxa de serviço é exibida no próximo passo, antes de pagar. Sem surpresas.</p>
+        <button class="btn btn-block" type="submit">Comprar ingressos</button>
+      </form>
+      {% else %}
+      <p style="text-align:center;padding:20px 0"><strong>Ingressos esgotados</strong><br>
+      <span class="muted">Fique de olho, novos lotes podem abrir.</span></p>
+      {% endif %}
+      {% if evento.lotes_em_espera %}
+      <p class="muted" style="margin-top:12px;text-align:center">
+        Em breve: {% for l in evento.lotes_em_espera %}{{ l.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        — abre automaticamente quando o lote atual esgotar.
+      </p>
+      {% endif %}
+      <p class="muted" style="margin-top:14px;text-align:center">{% icon "lock" tamanho=13 %} Pagamento seguro via Mercado Pago</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

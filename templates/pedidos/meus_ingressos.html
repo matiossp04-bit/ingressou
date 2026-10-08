@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Meus ingressos — Ingressou{% endblock %}
+{% block conteudo %}
+<h1 style="margin-bottom:6px">{% icon "ticket" tamanho=28 %} Meus ingressos</h1>
+<p class="muted" style="margin-bottom:20px">Digite o e-mail e o CPF usados na compra para recuperar seus ingressos.</p>
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <label for="email">E-mail da compra</label>
+    <input id="email" name="email" type="email" required value="{{ request.POST.email }}">
+    <label for="cpf">CPF da compra</label>
+    <input id="cpf" name="cpf" required placeholder="000.000.000-00" value="{{ request.POST.cpf }}">
+    <p style="margin-top:20px"><button class="btn" type="submit">Buscar meus ingressos</button></p>
+  </form>
+</div>
+
+{% if pedidos %}
+  {% for pedido in pedidos %}
+  <div class="card">
+    <h2 style="font-size:18px">{{ pedido.evento.titulo }}</h2>
+    <p class="muted" style="margin:6px 0 14px">
+      {% icon "calendar" tamanho=14 %} {{ pedido.evento.data_inicio|date:"d/m/Y H:i" }} · {% icon "pin" tamanho=14 %} {{ pedido.evento.local }} — {{ pedido.evento.cidade }}<br>
+      Comprado em {{ pedido.pago_em|date:"d/m/Y" }} via {{ pedido.get_metodo_pagamento_display }} · Total: R$ {{ pedido.total|dinheiro }}
+    </p>
+    <div class="grade">
+      {% for item in pedido.itens.all %}
+        {% for ingresso in item.ingressos.all %}
+        <div style="text-align:center;border:1px solid var(--borda);border-radius:10px;padding:14px">
+          <strong>{{ item.tipo_ingresso.nome }}</strong><br>
+          {% if ingresso.qrcode %}
+          <img src="{{ ingresso.qrcode.url }}" alt="QR code" width="150" style="margin:8px auto">
+          {% endif %}
+          {% if ingresso.validado %}
+          <div class="alerta" style="margin:6px 0 0;padding:8px">Utilizado em {{ ingresso.usado_em|date:"d/m/Y H:i" }}</div>
+          {% else %}
+          <div class="muted">Válido para entrada</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn btn-sec" href="{% url 'pedido_confirmado' pedido.uuid %}">Ver pedido completo</a>
+      <form method="post" action="{% url 'reenviar_ingressos' pedido.uuid %}">
+        {% csrf_token %}
+        <button class="btn btn-sec" type="submit">{% icon "mail" tamanho=15 %} Reenviar por e-mail</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+{% elif request.method == "POST" %}
+  {% comment %} mensagem de "não encontrado" já aparece via messages {% endcomment %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load dinheiro %}
+{% block titulo %}Pagamento — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="passos">
+  <div class="passo feito">1 · Escolha dos ingressos</div>
+  <div class="passo feito">2 · Seus dados</div>
+  <div class="passo ativo">3 · Pagamento</div>
+  <div class="passo">4 · Ingressos</div>
+</div>
+
+<div class="card">
+  <h1>Pagamento</h1>
+  <p class="muted" style="margin:8px 0 16px">
+    {{ pedido.evento.titulo }} · Pedido {{ pedido.uuid }}<br>
+    ⏰ Seus ingressos ficam reservados até {{ pedido.expira_em|date:"H:i" }}.
+  </p>
+
+  <table>
+    <tr><td>Ingressos</td><td class="num">R$ {{ pedido.subtotal|dinheiro }}</td></tr>
+    <tr><td>Taxa de serviço</td><td class="num">R$ {{ pedido.taxa_plataforma|dinheiro }}</td></tr>
+    <tr><td><strong>Total</strong></td><td class="num total-destaque">R$ {{ pedido.total|dinheiro }}</td></tr>
+  </table>
+
+  <div style="margin-top:24px">
+    {% if modo_simulado %}
+      <div class="alerta">
+        <strong>Modo de teste:</strong> o Mercado Pago ainda não foi conectado.
+        Quando você colocar suas credenciais no arquivo <code>.env</code>, esta tela passa
+        a redirecionar para o checkout oficial. Por enquanto, simule o resultado:
+      </div>
+      <form method="post" action="{% url 'simular_pagamento' pedido.uuid %}" style="display:inline">
+        {% csrf_token %}<input type="hidden" name="metodo" value="pix">
+        <button class="btn" type="submit">Simular pagamento via Pix</button>
+      </form>
+      <form method="post" action="{% url 'simular_pagamento' pedido.uuid %}" style="display:inline">
+        {% csrf_token %}<input type="hidden" name="metodo" value="cartao">
+        <button class="btn btn-sec" type="submit">Simular via Cartão</button>
+      </form>
+    {% else %}
+      <p style="margin-bottom:16px">Você será redirecionado para o Mercado Pago para pagar com Pix ou cartão, com total segurança.</p>
+      <a class="btn" href="{{ url_mp }}">Pagar com Mercado Pago</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

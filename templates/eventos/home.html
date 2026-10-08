@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Ingressou — Ingressos para os melhores eventos{% endblock %}
+
+{% block hero %}
+{% if destaques %}
+<section class="carrossel" id="carrossel" aria-label="Eventos em destaque">
+  <div class="trilho">
+    {% for evento in destaques %}
+    <a class="slide" href="{% url 'evento_detalhe' evento.slug %}" data-i="{{ forloop.counter0 }}">
+      {% if evento.imagem_carrossel %}
+      <img src="{{ evento.imagem_carrossel.url }}" alt="{{ evento.titulo }}">
+      {% else %}
+      <div class="slide-fallback"></div>
+      {% endif %}
+      <div class="slide-info">
+        <span class="data">{{ evento.data_inicio|date:"d M • H:i" }} · {{ evento.cidade }}</span>
+        <h3>{{ evento.titulo }}</h3>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  <button class="seta esq" aria-label="Anterior" type="button">‹</button>
+  <button class="seta dir" aria-label="Próximo" type="button">›</button>
+  <div class="pontos">
+    {% for evento in destaques %}
+    <button class="ponto" data-i="{{ forloop.counter0 }}" aria-label="Ir para {{ evento.titulo }}" type="button"></button>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="pos-hero">
+  <form class="busca" method="get" action="{% url 'home' %}">
+    <input type="search" name="q" value="{{ q }}" placeholder="Busque por evento, artista ou cidade…">
+    <button type="submit">Buscar</button>
+  </form>
+</div>
+<div class="categorias">
+  <a class="chip {% if not categoria_ativa %}ativo{% endif %}" href="{% url 'home' %}">{% icon "sparkles" tamanho=15 %} Todos</a>
+  {% for cat in categorias %}
+  <a class="chip {% if categoria_ativa == cat.valor %}ativo{% endif %}" href="?categoria={{ cat.valor }}">{% icon cat.icone tamanho=15 %} {{ cat.nome }}</a>
+  {% endfor %}
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById('carrossel');
+  if (!box) return;
+  var trilho = box.querySelector('.trilho');
+  var slides = Array.prototype.slice.call(box.querySelectorAll('.slide'));
+  var pontos = Array.prototype.slice.call(box.querySelectorAll('.ponto'));
+  var n = slides.length, idx = 0, timer = null;
+
+  function largura() {
+    return slides[0].offsetWidth + 24; // slide + margem
+  }
+  function mostrar(i) {
+    idx = ((i % n) + n) % n;
+    var desloc = idx * largura() - (box.offsetWidth - slides[0].offsetWidth) / 2;
+    trilho.style.transform = 'translateX(' + (-desloc) + 'px)';
+    slides.forEach(function (s, k) { s.classList.toggle('ativo', k === idx); });
+    pontos.forEach(function (p, k) { p.classList.toggle('ativo', k === idx); });
+  }
+  function auto() {
+    clearInterval(timer);
+    timer = setInterval(function () { mostrar(idx + 1); }, 4000); // 4 segundos
+  }
+
+  box.querySelector('.esq').addEventListener('click', function () { mostrar(idx - 1); auto(); });
+  box.querySelector('.dir').addEventListener('click', function () { mostrar(idx + 1); auto(); });
+  pontos.forEach(function (p, k) {
+    p.addEventListener('click', function () { mostrar(k); auto(); });
+  });
+  slides.forEach(function (s, k) {
+    s.addEventListener('click', function (e) {
+      if (k !== idx) { e.preventDefault(); mostrar(k); auto(); } // clique na lateral só centraliza
+    });
+  });
+  box.addEventListener('mouseenter', function () { clearInterval(timer); }); // pausa com o mouse em cima
+  box.addEventListener('mouseleave', auto);
+  window.addEventListener('resize', function () { mostrar(idx); });
+
+  mostrar(0);
+  auto();
+})();
+</script>
+{% endblock %}
+
+{% block conteudo %}
+{% if eventos or q or categoria_ativa or titulo_lista %}
+{# ===== Modo listagem: busca, categoria ou "Ver tudo" ===== #}
+<h2 class="secao-titulo">
+  {% if q %}Resultados para "{{ q }}"
+  {% elif categoria_ativa %}{% icon categoria_icone tamanho=24 %} Eventos de {{ categoria_nome }}
+  {% else %}{% if icone_lista %}{% icon icone_lista tamanho=24 %} {% endif %}{{ titulo_lista|default:"Próximos eventos" }}{% endif %}
+</h2>
+
+{% if eventos %}
+<div class="grade-eventos">
+  {% for evento in eventos %}
+    {% include "eventos/_card.html" with evento=evento %}
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <p>Nenhum evento encontrado{% if q %} para "{{ q }}"{% endif %}.
+  {% if q or categoria_ativa or titulo_lista %}<a href="{% url 'home' %}">Ver todos os eventos</a>.{% endif %}</p>
+</div>
+{% endif %}
+
+{% else %}
+{# ===== Home em seções (trilhos horizontais com setas) ===== #}
+{% for sec in secoes %}
+{% if sec.eventos %}
+<section class="secao-rail">
+  <div class="secao-topo">
+    <h2 class="secao-titulo">{% icon sec.icone tamanho=24 %} {{ sec.titulo }}</h2>
+    <a class="ver-tudo" href="?secao={{ sec.slug }}">Ver tudo ›</a>
+  </div>
+  <div class="rail-wrap">
+    <button class="rail-seta esq" type="button" aria-label="Anterior">‹</button>
+    <div class="rail">
+      {% for evento in sec.eventos %}
+        {% include "eventos/_card.html" with evento=evento %}
+      {% endfor %}
+    </div>
+    <button class="rail-seta dir" type="button" aria-label="Próximo">›</button>
+  </div>
+</section>
+{% endif %}
+{% empty %}
+<div class="card"><p>Nenhum evento publicado no momento. Volte em breve!</p></div>
+{% endfor %}
+{% endif %}
+
+<script>
+(function () {
+  document.querySelectorAll('.rail-wrap').forEach(function (wrap) {
+    var rail = wrap.querySelector('.rail');
+    var esq = wrap.querySelector('.rail-seta.esq');
+    var dir = wrap.querySelector('.rail-seta.dir');
+    function passo() { return Math.max(rail.clientWidth * 0.85, 220); }
+    function atualizar() {
+      esq.style.display = rail.scrollLeft > 10 ? '' : 'none';
+      dir.style.display = rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 10 ? '' : 'none';
+    }
+    esq.addEventListener('click', function () { rail.scrollBy({ left: -passo(), behavior: 'smooth' }); });
+    dir.addEventListener('click', function () { rail.scrollBy({ left: passo(), behavior: 'smooth' }); });
+    rail.addEventListener('scroll', atualizar, { passive: true });
+    window.addEventListener('resize', atualizar);
+    atualizar();
+  });
+})();
+</script>
+{% endblock %}

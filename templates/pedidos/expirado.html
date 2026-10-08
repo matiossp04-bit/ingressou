@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block titulo %}Pedido expirado — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="card">
+  <h1>⏰ Reserva expirada</h1>
+  <p style="margin:12px 0">O tempo para pagar terminou e os ingressos voltaram para venda. Você pode tentar novamente.</p>
+  <a class="btn" href="{% url 'evento_detalhe' pedido.evento.slug %}">Voltar ao evento</a>
+</div>
+{% endblock %}

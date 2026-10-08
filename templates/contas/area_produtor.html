@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Área do produtor — Ingressou{% endblock %}
+{% block conteudo %}
+<h1 style="margin-bottom:4px">{% icon "mic" tamanho=28 %} Área do produtor</h1>
+<p class="muted" style="margin-bottom:16px">{{ produtor.nome }} · acompanhe seus eventos e repasses em tempo real.</p>
+<p style="margin-bottom:20px"><a class="btn" href="{% url 'criar_evento' %}">+ Criar meu evento</a></p>
+
+<div class="card" style="background:linear-gradient(90deg,var(--roxo-escuro),var(--roxo));color:#fff">
+  <table style="color:#fff">
+    <tr>
+      <th style="color:#b9a8f5">Eventos</th>
+      <th style="color:#b9a8f5" class="num">Pedidos pagos</th>
+      <th style="color:#b9a8f5" class="num">Repasse total a receber</th>
+    </tr>
+    <tr>
+      <td>{{ eventos|length }}</td>
+      <td class="num">{{ total_vendas }}</td>
+      <td class="num"><strong style="color:#7ef0b2;font-size:20px">R$ {{ total_repasse|dinheiro }}</strong></td>
+    </tr>
+  </table>
+  <p style="font-size:12px;color:#b9a8f5;margin-top:10px">
+    O repasse é exatamente o valor dos seus ingressos — as taxas e impostos do Ingressou saem da nossa parte, não da sua.
+  </p>
+</div>
+
+{% for evento in eventos %}
+<div class="card">
+  <h2 style="font-size:18px">{{ evento.titulo }}
+    {% if evento.publicado %}
+    <span style="background:var(--verde);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">NO AR</span>
+    {% else %}
+    <span style="background:#f59e0b;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">AGUARDANDO APROVAÇÃO</span>
+    {% endif %}
+  </h2>
+  <p class="muted" style="margin:6px 0 12px">{% icon "calendar" tamanho=14 %} {{ evento.data_inicio|date:"d/m/Y H:i" }} · {% icon "pin" tamanho=14 %} {{ evento.local }} — {{ evento.cidade }}</p>
+  <table>
+    <tr><th>Ingresso</th><th class="num">Preço (seu repasse/un.)</th><th class="num">Vendidos</th><th class="num">Disponíveis</th></tr>
+    {% for tipo in evento.tipos_ingresso.all %}
+    <tr>
+      <td>{{ tipo.nome }}</td>
+      <td class="num">R$ {{ tipo.preco|dinheiro }}</td>
+      <td class="num">{{ tipo.quantidade_vendida }}</td>
+      <td class="num">{{ tipo.disponivel }}</td>
+    </tr>
+    {% endfor %}
+    <tr style="border-top:2px solid var(--roxo)">
+      <td colspan="2"><strong>Repasse do evento</strong> ({{ evento.vendas }} pedido{{ evento.vendas|pluralize }} pago{{ evento.vendas|pluralize }})</td>
+      <td class="num" colspan="2"><strong class="total-destaque">R$ {{ evento.repasse|default:"0"|dinheiro }}</strong></td>
+    </tr>
+  </table>
+  <p style="margin-top:12px">
+    <a class="btn btn-sec" href="{% url 'gerenciar_ingressos' evento.id %}">{% icon "ticket" tamanho=15 %} Gerenciar ingressos e lotes</a>
+  </p>
+</div>
+{% empty %}
+<div class="card">
+  <p>Você ainda não tem eventos cadastrados. Solicite o cadastro do seu primeiro evento à equipe Ingressou!</p>
+</div>
+{% endfor %}
+{% endblock %}

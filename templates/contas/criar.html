@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Criar conta — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="card" style="max-width:520px;margin:30px auto">
+  <h1 style="font-size:24px;text-align:center">Criar sua conta</h1>
+  <p class="muted" style="text-align:center;margin:8px 0 18px">
+    Com <strong>CPF</strong> você compra ingressos. Com <strong>CNPJ</strong> você cria eventos.
+  </p>
+
+  {% if form.non_field_errors %}
+  <div class="alerta">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for campo in form %}
+      <label for="{{ campo.id_for_label }}" style="{% if campo.field.widget.input_type == 'radio' %}display:none{% endif %}">{{ campo.label }}</label>
+      {% if campo.field.widget.input_type == 'radio' %}
+        <div style="display:flex;gap:12px;margin-top:16px">
+          {% for opcao in campo %}
+          <label style="flex:1;display:flex;gap:8px;align-items:center;justify-content:center;border:1px solid var(--borda);border-radius:10px;padding:12px;margin:0;cursor:pointer;font-weight:600">
+            {{ opcao.tag }} <span>{{ opcao.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      {% else %}
+        {{ campo }}
+      {% endif %}
+      {% if campo.help_text %}<p class="muted" style="margin-top:2px">{{ campo.help_text }}</p>{% endif %}
+      {% for erro in campo.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+    {% endfor %}
+    <p style="margin-top:24px"><button class="btn btn-block" type="submit">Criar minha conta</button></p>
+  </form>
+  <p class="muted" style="text-align:center;margin-top:14px">
+    Já tem conta? <a href="{% url 'entrar' %}">Entrar</a>
+  </p>
+</div>
+{% endblock %}

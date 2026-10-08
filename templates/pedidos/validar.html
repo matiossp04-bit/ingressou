@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Validar ingresso — Ingressou{% endblock %}
+{% block conteudo %}
+<div class="card" style="text-align:center">
+  <h1>Validação de ingresso</h1>
+  <p style="margin:12px 0">
+    <strong>{{ ingresso.item.tipo_ingresso.nome }}</strong><br>
+    {{ ingresso.item.pedido.evento.titulo }}<br>
+    Comprador: {{ ingresso.item.pedido.comprador_nome }}<br>
+    <span class="muted">Código: {{ ingresso.codigo }}</span>
+  </p>
+  {% if ingresso.validado %}
+    <div class="alerta">{% icon "alerta" tamanho=15 %} Este ingresso já foi utilizado em {{ ingresso.usado_em|date:"d/m/Y H:i" }}.</div>
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn" type="submit">{% icon "check" tamanho=15 %} Validar entrada</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Recepção — Ingressou{% endblock %}
+{% block conteudo %}
+<div style="max-width:520px;margin:0 auto">
+  <h1 style="margin-bottom:4px">{% icon "check" tamanho=26 %} Recepção</h1>
+  <p class="muted" style="margin-bottom:18px">Aponte a câmera para o QR Code do ingresso. A baixa é automática.</p>
+
+  <div class="card" style="text-align:center">
+    <div id="leitor" style="width:100%;border-radius:12px;overflow:hidden"></div>
+    <p id="btn-wrap" style="margin:6px 0 0">
+      <button class="btn" id="btn-iniciar" type="button">{% icon "camera" tamanho=16 %} Iniciar câmera</button>
+    </p>
+  </div>
+
+  <div id="resultado" style="display:none;margin:18px 0;padding:26px 20px;border-radius:16px;text-align:center;color:#fff">
+    <div id="res-titulo" style="font-size:26px;font-weight:800"></div>
+    <div id="res-detalhe" style="font-size:15px;margin-top:8px;opacity:.95"></div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px;margin-bottom:10px">Digitar código manualmente</h2>
+    <form id="form-manual" style="display:flex;gap:10px">
+      <input id="codigo-manual" placeholder="Cole o código ou o link do ingresso" style="flex:1;margin:0">
+      <button class="btn" type="submit">Validar</button>
+    </form>
+  </div>
+
+  <p class="muted" style="text-align:center;margin-top:14px">
+    Validados nesta sessão: <strong id="contador">0</strong>
+  </p>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+(function () {
+  var scanner = null, escaneando = false, travado = false;
+  var contador = 0;
+  var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+  var csrfToken = csrf ? csrf.value : (document.cookie.match(/csrftoken=([^;]+)/) || [])[1];
+
+  function feedback(status, dados) {
+    var box = document.getElementById('resultado');
+    var titulo = document.getElementById('res-titulo');
+    var detalhe = document.getElementById('res-detalhe');
+    box.style.display = 'block';
+    if (status === 'ok') {
+      box.style.background = 'var(--verde)';
+      titulo.textContent = 'ENTRADA LIBERADA';
+      detalhe.textContent = dados.tipo + ' · ' + dados.comprador + ' · ' + dados.evento;
+      contador++;
+      document.getElementById('contador').textContent = contador;
+    } else if (status === 'repetido') {
+      box.style.background = '#e8a33d';
+      titulo.textContent = 'JÁ UTILIZADO';
+      detalhe.textContent = dados.tipo + ' · ' + dados.comprador + ' — baixa dada às ' + dados.usado_em;
+    } else {
+      box.style.background = 'var(--vermelho)';
+      titulo.textContent = 'INGRESSO NÃO ENCONTRADO';
+      detalhe.textContent = 'Confira se o QR é deste evento/plataforma.';
+    }
+    if (navigator.vibrate) navigator.vibrate(status === 'ok' ? 80 : [120, 60, 120]);
+    clearTimeout(box._timer);
+    box._timer = setTimeout(function () { box.style.display = 'none'; }, 4000);
+  }
+
+  function bipar(texto) {
+    if (travado) return;
+    travado = true;
+    setTimeout(function () { travado = false; }, 2500); // evita bip duplo do mesmo QR
+    fetch('{% url "bipar_ingresso" %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'codigo=' + encodeURIComponent(texto)
+    })
+      .then(function (r) { return r.json().then(function (d) { feedback(d.status, d); }); })
+      .catch(function () { feedback('invalido', {}); });
+  }
+
+  document.getElementById('btn-iniciar').addEventListener('click', function () {
+    if (escaneando) return;
+    scanner = new Html5Qrcode('leitor');
+    scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      function (texto) { bipar(texto); },
+      function () {}
+    ).then(function () {
+      escaneando = true;
+      document.getElementById('btn-wrap').style.display = 'none';
+    }).catch(function () {
+      alert('Não consegui acessar a câmera. Verifique a permissão do navegador ou use o código manual.');
+    });
+  });
+
+  document.getElementById('form-manual').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var campo = document.getElementById('codigo-manual');
+    if (campo.value.trim()) { bipar(campo.value); campo.value = ''; campo.focus(); }
+  });
+})();
+</script>
+{% endblock %}

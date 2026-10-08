@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Minha conta — Ingressou{% endblock %}
+{% block conteudo %}
+<h1 style="margin-bottom:4px">Olá, {{ request.user.first_name|default:request.user.username }}!</h1>
+<p class="muted" style="margin-bottom:24px">
+  Esta é a sua área no Ingressou.
+  {% if request.user.is_staff %}
+  <span style="background:var(--roxo);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;margin-left:8px">ADMIN</span>
+  {% elif request.user.perfil %}
+  <span style="background:{% if request.user.perfil.eh_produtor %}var(--rosa){% elif request.user.perfil.eh_recepcao %}#e8a33d{% else %}var(--verde){% endif %};color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;margin-left:8px">
+    {% if request.user.perfil.eh_produtor %}PRODUTOR · CNPJ{% elif request.user.perfil.eh_recepcao %}RECEPÇÃO{% else %}COMPRADOR · CPF{% endif %}
+  </span>
+  {% endif %}
+</p>
+
+<div class="grade">
+  {% if request.user.perfil.eh_produtor and not request.user.is_staff %}
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "mic" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Área do produtor</h2>
+    <p class="muted" style="margin-bottom:14px">Seus eventos, vendas e repasses em tempo real.</p>
+    <a class="btn" href="{% url 'area_produtor' %}">Abrir área do produtor</a>
+  </div>
+  {% endif %}
+  {% if request.user.is_staff %}
+  <div class="card" style="text-align:center;{% if requerimentos_pendentes %}border:2px solid var(--roxo){% endif %}">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "inbox" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Requerimentos de eventos
+      {% if requerimentos_pendentes %}
+      <span style="background:var(--rosa);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:4px">{{ requerimentos_pendentes }} novo{{ requerimentos_pendentes|pluralize:"s" }}</span>
+      {% endif %}
+    </h2>
+    <p class="muted" style="margin-bottom:14px">Eventos enviados por produtores aguardando sua aprovação.</p>
+    <a class="btn" href="/admin/eventos/requerimentoevento/">Revisar requerimentos</a>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "engrenagem" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Administração</h2>
+    <p class="muted" style="margin-bottom:14px">Cadastrar eventos, produtores, tipos de ingresso e configurações da plataforma.</p>
+    <a class="btn" href="/admin/">Abrir admin</a>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "carteira" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Painel financeiro</h2>
+    <p class="muted" style="margin-bottom:14px">Receita, custos do gateway, impostos, repasses e lucro por evento.</p>
+    <a class="btn" href="{% url 'painel_dashboard' %}">Abrir painel</a>
+  </div>
+  {% endif %}
+  {% if request.user.is_staff or request.user.perfil.eh_recepcao %}
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "camera" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Recepção do evento</h2>
+    <p class="muted" style="margin-bottom:14px">Bipe os QR codes dos ingressos e dê baixa na entrada.</p>
+    <a class="btn" href="{% url 'recepcao' %}">Abrir scanner</a>
+  </div>
+  {% endif %}
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "ticket" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Meus ingressos</h2>
+    <p class="muted" style="margin-bottom:14px">Consulte compras feitas com seu e-mail e CPF.</p>
+    <a class="btn btn-sec" href="{% url 'meus_ingressos' %}">Consultar</a>
+  </div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:34px;color:var(--roxo)">{% icon "sair" tamanho=34 %}</div>
+    <h2 style="font-size:17px;margin:8px 0">Sair</h2>
+    <p class="muted" style="margin-bottom:14px">Encerrar a sessão neste dispositivo.</p>
+    <form method="post" action="{% url 'sair' %}">
+      {% csrf_token %}
+      <button class="btn btn-sec" type="submit">Sair da conta</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

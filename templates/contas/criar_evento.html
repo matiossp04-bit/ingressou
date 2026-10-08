@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Criar meu evento — Ingressou{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
+<h1 style="margin-bottom:6px">{% icon "mic" tamanho=26 %} Criar meu evento</h1>
+<p class="muted" style="margin-bottom:20px">Preencha tudo com calma. Após o envio, nossa equipe revisa e publica o evento.</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="card">
+    <h2 style="font-size:18px;margin-bottom:8px">{% icon "lista" tamanho=18 %} Informações do evento</h2>
+    {% for campo in form %}
+      {% if campo.name != "imagem" and campo.name != "banner" %}
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+      {{ campo }}
+      {% for erro in campo.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:18px;margin-bottom:8px">{% icon "imagem" tamanho=18 %} Banners</h2>
+    <p class="muted" style="margin-bottom:8px">Duas imagens fazem seu evento brilhar em todos os lugares:</p>
+    <label for="{{ form.imagem.id_for_label }}">{{ form.imagem.label }} *</label>
+    <p class="muted">Proporção 16:9 — ex.: 800x450 px. Aparece nos cards e na página do evento.</p>
+    {{ form.imagem }}
+    <label for="{{ form.banner.id_for_label }}">{{ form.banner.label }}</label>
+    <p class="muted">1600x820 px ou maior. Se não enviar, usamos o banner menor aqui também.</p>
+    {{ form.banner }}
+    {% for erro in form.imagem.errors %}<p style="color:var(--vermelho);font-size:13px">{{ erro }}</p>{% endfor %}
+    {% for erro in form.banner.errors %}<p style="color:var(--vermelho);font-size:13px">{{ erro }}</p>{% endfor %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:18px;margin-bottom:8px">{% icon "ticket" tamanho=18 %} Tipos de ingresso</h2>
+    <p class="muted" style="margin-bottom:12px">
+      O preço que você define é <strong>exatamente o que você recebe</strong> por ingresso vendido.
+      A taxa do Ingressou é somada para o comprador no checkout.
+    </p>
+    {{ formset.management_form }}
+    {% for erro in formset.non_form_errors %}<p style="color:var(--vermelho);font-size:13px">{{ erro }}</p>{% endfor %}
+
+    <div id="ingressos">
+      {% for f in formset %}
+      <div class="bloco-ingresso">
+        <div class="bloco-ingresso-topo">
+          <strong class="bloco-num">Ingresso {{ forloop.counter }}</strong>
+          <button type="button" class="remover-ingresso" title="Remover este ingresso">✕ remover</button>
+        </div>
+        {% for campo in f %}
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+        {{ campo }}
+        {% if campo.help_text %}<p class="muted" style="margin-top:2px">{{ campo.help_text }}</p>{% endif %}
+        {% for erro in campo.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <p style="margin-top:12px">
+      <button type="button" class="btn btn-sec" id="add-ingresso">+ Adicionar outro tipo de ingresso</button>
+    </p>
+
+    <template id="tpl-ingresso">
+      <div class="bloco-ingresso">
+        <div class="bloco-ingresso-topo">
+          <strong class="bloco-num"></strong>
+          <button type="button" class="remover-ingresso" title="Remover este ingresso">✕ remover</button>
+        </div>
+        {% for campo in formset.empty_form %}
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+        {{ campo }}
+        {% if campo.help_text %}<p class="muted" style="margin-top:2px">{{ campo.help_text }}</p>{% endif %}
+        {% endfor %}
+      </div>
+    </template>
+  </div>
+
+  <p><button class="btn btn-block" type="submit">{% icon "foguete" tamanho=16 %} Enviar evento para aprovação</button></p>
+</form>
+
+<script>
+(function () {
+  var total = document.querySelector('input[name="ingressos-TOTAL_FORMS"]');
+
+  function renumerar() {
+    document.querySelectorAll('#ingressos .bloco-ingresso').forEach(function (b, i) {
+      b.querySelector('.bloco-num').textContent = 'Ingresso ' + (i + 1);
+      b.querySelector('.remover-ingresso').style.visibility =
+        document.querySelectorAll('#ingressos .bloco-ingresso').length > 1 ? 'visible' : 'hidden';
+    });
+  }
+
+  document.getElementById('add-ingresso').addEventListener('click', function () {
+    var tpl = document.getElementById('tpl-ingresso').innerHTML.replace(/__prefix__/g, total.value);
+    var div = document.createElement('div');
+    div.innerHTML = tpl;
+    document.getElementById('ingressos').appendChild(div.firstElementChild);
+    total.value = parseInt(total.value, 10) + 1;
+    renumerar();
+  });
+
+  document.getElementById('ingressos').addEventListener('click', function (e) {
+    var btn = e.target.closest('.remover-ingresso');
+    if (!btn) return;
+    if (document.querySelectorAll('#ingressos .bloco-ingresso').length > 1) {
+      btn.closest('.bloco-ingresso').remove();
+      renumerar();
+    }
+  });
+
+  renumerar();
+})();
+</script>
+{% endblock %}

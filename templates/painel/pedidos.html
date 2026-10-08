@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load dinheiro %}
+{% block titulo %}Pedidos — {{ evento.titulo }}{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'painel_dashboard' %}">← Voltar ao painel</a></p>
+<h1 style="margin-bottom:20px">{{ evento.titulo }} — pedidos</h1>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Pedido</th><th>Comprador</th><th>Status</th><th>Método</th>
+      <th class="num">Ingressos</th><th class="num">Taxa</th><th class="num">Gateway</th>
+      <th class="num">Imposto</th><th class="num">Repasse</th><th class="num">Lucro</th>
+    </tr>
+    {% for p in pedidos %}
+    <tr>
+      <td class="muted">{{ p.uuid|slice:":8" }}</td>
+      <td>{{ p.comprador_nome }}<br><span class="muted">{{ p.comprador_email }}</span></td>
+      <td>{{ p.get_status_display }}</td>
+      <td>{{ p.get_metodo_pagamento_display }}</td>
+      <td class="num">R$ {{ p.subtotal|dinheiro }}</td>
+      <td class="num">R$ {{ p.taxa_plataforma|dinheiro }}</td>
+      <td class="num">R$ {{ p.custo_gateway|dinheiro }}</td>
+      <td class="num">R$ {{ p.imposto|dinheiro }}</td>
+      <td class="num">R$ {{ p.repasse_produtor|dinheiro }}</td>
+      <td class="num"><strong>R$ {{ p.lucro_plataforma|dinheiro }}</strong></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="10">Nenhum pedido ainda.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

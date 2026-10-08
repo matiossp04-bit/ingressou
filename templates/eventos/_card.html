@@ -1,0 +1,21 @@
+{% load dinheiro icones %}
+<a class="card-evento" href="{% url 'evento_detalhe' evento.slug %}">
+  <div class="capa-wrap">
+    {% if evento.imagem %}
+    <img class="capa" src="{{ evento.imagem.url }}" alt="{{ evento.titulo }}">
+    {% else %}
+    <div class="capa"></div>
+    {% endif %}
+    <span class="selo-categoria">{{ evento.get_categoria_display }}</span>
+  </div>
+  <div class="corpo">
+    <span class="data">{{ evento.data_inicio|date:"d M • H:i" }}</span>
+    <h3>{{ evento.titulo }}</h3>
+    <span class="local">{% icon "pin" tamanho=13 %} {{ evento.local }} — {{ evento.cidade }}</span>
+    {% if evento.preco_minimo %}
+    <span class="preco">a partir de <strong>R$ {{ evento.preco_minimo|dinheiro }}</strong></span>
+    {% else %}
+    <span class="preco"><strong>Esgotado</strong></span>
+    {% endif %}
+  </div>
+</a>
