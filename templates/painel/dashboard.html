@@ -8,17 +8,17 @@
   · <strong>A repassar aos produtores: R$ {{ total_a_repassar|dinheiro }}</strong>
 </p>
 
-<div class="card" style="background:#2e1a66;color:#fff">
+<div class="card" style="background:#111827;color:#fff">
   <h2 style="margin-bottom:12px">Resumo geral (todos os eventos)</h2>
   <table style="color:#fff">
     <tr>
-      <th style="color:#b9a8f5">Vendas</th>
-      <th style="color:#b9a8f5" class="num">Receita bruta</th>
-      <th style="color:#b9a8f5" class="num">Taxa Ingressou</th>
-      <th style="color:#b9a8f5" class="num">Custo gateway</th>
-      <th style="color:#b9a8f5" class="num">Imposto</th>
-      <th style="color:#b9a8f5" class="num">Repasse produtores</th>
-      <th style="color:#b9a8f5" class="num">Lucro líquido</th>
+      <th style="color:#93c5fd">Vendas</th>
+      <th style="color:#93c5fd" class="num">Receita bruta</th>
+      <th style="color:#93c5fd" class="num">Taxa Ingressou</th>
+      <th style="color:#93c5fd" class="num">Custo gateway</th>
+      <th style="color:#93c5fd" class="num">Imposto</th>
+      <th style="color:#93c5fd" class="num">Repasse produtores</th>
+      <th style="color:#93c5fd" class="num">Lucro líquido</th>
     </tr>
     <tr>
       <td>{{ geral.vendas }}</td>
@@ -47,7 +47,7 @@
     <tr><td>(−) Taxa do Mercado Pago</td><td class="num" style="color:#c0392b">− R$ {{ e.custo_gateway|dinheiro }}</td></tr>
     <tr><td>(−) Imposto do Ingressou (sobre a taxa de serviço)</td><td class="num" style="color:#c0392b">− R$ {{ e.imposto_plataforma|dinheiro }}</td></tr>
     <tr><td>(−) Repasse ao produtor <span class="muted">(exato; impostos da parte dele são dele)</span></td><td class="num">R$ {{ e.repasse_produtor|dinheiro }}</td></tr>
-    <tr style="border-top:2px solid #5b2ee5">
+    <tr style="border-top:2px solid #3b82f6">
       <td><strong>= Lucro líquido do Ingressou</strong> ({{ e.vendas }} venda{{ e.vendas|pluralize }})</td>
       <td class="num total-destaque">R$ {{ e.lucro_plataforma|dinheiro }}</td>
     </tr>

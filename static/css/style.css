@@ -1,10 +1,12 @@
 /* ===== Ingressou — Design System ===== */
 :root {
-  --roxo: #5b2ee5;
-  --roxo-escuro: #3d1ba8;
-  --roxo-claro: #8e5cf5;
-  --rosa: #e52e8a;
-  --fundo: #f6f6fa;
+  --roxo: #3b82f6;
+  --roxo-escuro: #2563eb;
+  --roxo-claro: #60a5fa;
+  --rosa: #f59e0b;
+  --grafite: #111827;
+  --grafite-2: #1f2937;
+  --fundo: #f9fafb;
   --texto: #1c1c28;
   --texto-suave: #6b6b80;
   --borda: #e6e6f0;
@@ -22,7 +24,7 @@ img { max-width: 100%; }
 
 /* ===== Header ===== */
 header.topo {
-  background: linear-gradient(90deg, var(--roxo-escuro), var(--roxo));
+  background: linear-gradient(90deg, var(--grafite), var(--grafite-2));
   color: #fff; padding: 0 24px; height: 64px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 50; box-shadow: var(--sombra);
@@ -52,7 +54,7 @@ header.topo {
 .carrossel .slide img, .carrossel .slide-fallback {
   width: 100%; aspect-ratio: 16/8.2; object-fit: cover; display: block;
 }
-.carrossel .slide-fallback { background: linear-gradient(120deg, var(--roxo), var(--rosa)); }
+.carrossel .slide-fallback { background: linear-gradient(120deg, var(--grafite-2), var(--roxo)); }
 .carrossel .slide-info {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 24px;
   background: linear-gradient(transparent, rgba(15, 10, 40, .85));
@@ -71,7 +73,7 @@ header.topo {
 .carrossel .pontos { position: absolute; bottom: 18px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
 .carrossel .ponto {
   width: 9px; height: 9px; border-radius: 50%; border: none; cursor: pointer;
-  background: #cfc9e8; transition: .2s; padding: 0;
+  background: #cbd5e1; transition: .2s; padding: 0;
 }
 .carrossel .ponto.ativo { background: var(--roxo); transform: scale(1.25); }
 @media (max-width: 700px) {
@@ -81,7 +83,7 @@ header.topo {
 
 /* ===== Hero ===== */
 .hero {
-  background: linear-gradient(120deg, var(--roxo-escuro) 0%, var(--roxo) 55%, var(--rosa) 130%);
+  background: linear-gradient(120deg, var(--grafite) 0%, var(--grafite-2) 55%, var(--roxo) 130%);
   color: #fff; padding: 72px 24px 88px; text-align: center;
 }
 .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
@@ -110,7 +112,7 @@ h1 .icone-svg { color: var(--roxo); vertical-align: -0.1em; }
 .topo nav a .icone-svg { vertical-align: -0.15em; }
 
 /* Blocos de tipos de ingresso (criar evento) */
-.bloco-ingresso { border: 1px solid var(--borda); border-radius: 12px; padding: 16px 18px 6px; margin-bottom: 14px; background: #faf9ff; }
+.bloco-ingresso { border: 1px solid var(--borda); border-radius: 12px; padding: 16px 18px 6px; margin-bottom: 14px; background: #f4f8ff; }
 .bloco-ingresso-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .bloco-ingresso-topo .bloco-num { color: var(--roxo); font-size: 14px; }
 .remover-ingresso { border: none; background: none; color: var(--vermelho); font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 6px; }
@@ -160,7 +162,7 @@ main.container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
 }
 .card-evento { background: #fff; border-radius: var(--raio); overflow: hidden; box-shadow: var(--sombra); text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: transform .15s, box-shadow .15s; }
 .card-evento:hover { transform: translateY(-4px); box-shadow: var(--sombra-forte); }
-.card-evento .capa { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: linear-gradient(120deg, var(--roxo), var(--rosa)); display: block; }
+.card-evento .capa { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: linear-gradient(120deg, var(--grafite-2), var(--roxo)); display: block; }
 .card-evento .corpo { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .card-evento .data { color: var(--roxo); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
 .card-evento h3 { font-size: 17px; font-weight: 700; line-height: 1.3; }
@@ -172,7 +174,7 @@ main.container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
 
 /* ===== Página do evento ===== */
 .banner-evento { width: 100%; max-height: 420px; object-fit: cover; display: block; }
-.banner-fallback { height: 280px; background: linear-gradient(120deg, var(--roxo-escuro), var(--roxo), var(--rosa)); }
+.banner-fallback { height: 280px; background: linear-gradient(120deg, var(--grafite), var(--grafite-2), var(--roxo)); }
 .evento-grid { display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
 @media (max-width: 900px) { .evento-grid { grid-template-columns: 1fr; } }
 .evento-info h1 { font-size: 34px; font-weight: 800; letter-spacing: -.8px; margin: 18px 0 14px; }
@@ -195,8 +197,8 @@ main.container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
 .btn { display: inline-block; background: var(--roxo); color: #fff; border: none; padding: 13px 28px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; transition: .15s; }
 .btn:hover { background: var(--roxo-escuro); }
 .btn-block { display: block; width: 100%; text-align: center; }
-.btn-sec { background: #efeafc; color: var(--roxo); }
-.btn-sec:hover { background: #e2d7fb; }
+.btn-sec { background: #e8eefb; color: var(--roxo); }
+.btn-sec:hover { background: #d7e4fb; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--borda); }
 th { font-size: 12px; text-transform: uppercase; color: var(--texto-suave); letter-spacing: .04em; }
@@ -217,11 +219,11 @@ label { font-size: 13px; font-weight: 600; color: #4a4a60; display: block; margi
 .passo.feito { color: var(--verde); border-color: var(--verde); }
 
 /* ===== Footer ===== */
-footer.rodape { background: #17122b; color: #b9b3d9; margin-top: 70px; padding: 48px 24px 28px; }
+footer.rodape { background: var(--grafite); color: #9ca3af; margin-top: 70px; padding: 48px 24px 28px; }
 .rodape .colunas { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; }
 @media (max-width: 800px) { .rodape .colunas { grid-template-columns: 1fr 1fr; } }
 .rodape h4 { color: #fff; font-size: 14px; margin-bottom: 12px; }
-.rodape a { color: #b9b3d9; text-decoration: none; display: block; font-size: 14px; padding: 4px 0; }
+.rodape a { color: #9ca3af; text-decoration: none; display: block; font-size: 14px; padding: 4px 0; }
 .rodape a:hover { color: #fff; }
 .rodape .logo img { height: 34px; width: auto; display: block; }
-.rodape .final { max-width: 1100px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid #2c2450; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.rodape .final { max-width: 1100px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid #2a3342; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }

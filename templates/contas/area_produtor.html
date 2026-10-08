@@ -6,12 +6,12 @@
 <p class="muted" style="margin-bottom:16px">{{ produtor.nome }} · acompanhe seus eventos e repasses em tempo real.</p>
 <p style="margin-bottom:20px"><a class="btn" href="{% url 'criar_evento' %}">+ Criar meu evento</a></p>
 
-<div class="card" style="background:linear-gradient(90deg,var(--roxo-escuro),var(--roxo));color:#fff">
+<div class="card" style="background:linear-gradient(90deg,var(--grafite),var(--grafite-2));color:#fff">
   <table style="color:#fff">
     <tr>
-      <th style="color:#b9a8f5">Eventos</th>
-      <th style="color:#b9a8f5" class="num">Pedidos pagos</th>
-      <th style="color:#b9a8f5" class="num">Repasse total a receber</th>
+      <th style="color:#93c5fd">Eventos</th>
+      <th style="color:#93c5fd" class="num">Pedidos pagos</th>
+      <th style="color:#93c5fd" class="num">Repasse total a receber</th>
     </tr>
     <tr>
       <td>{{ eventos|length }}</td>
@@ -19,7 +19,7 @@
       <td class="num"><strong style="color:#7ef0b2;font-size:20px">R$ {{ total_repasse|dinheiro }}</strong></td>
     </tr>
   </table>
-  <p style="font-size:12px;color:#b9a8f5;margin-top:10px">
+  <p style="font-size:12px;color:#93c5fd;margin-top:10px">
     O repasse é exatamente o valor dos seus ingressos — as taxas e impostos do Ingressou saem da nossa parte, não da sua.
   </p>
 </div>
