@@ -73,6 +73,7 @@ Acesse `https://seu-endereco.onrender.com/admin/` e cadastre os eventos reais
 ## Depois (quando quiser)
 
 - **Domínio próprio** (`ingressou.com.br`): compre no Registro.br e aponte no Render → Settings → Custom Domains (grátis, HTTPS automático). Depois ajuste `ALLOWED_HOSTS`, `SITE_URL`, `CSRF_TRUSTED_ORIGINS` e o webhook do MP.
+  - ⭐ **Lembrar ao registrar o domínio**: colocar o logo oficial (`static/img/logo.png`) no e-mail de confirmação de compra (`templates/emails/ingressos.html` — hoje vai só o nome em texto). O e-mail precisa apontar para a URL pública da imagem no domínio definitivo.
 - **E-mail real**: configure as variáveis `EMAIL_*` (ver `.env.example`) para os ingressos chegarem por e-mail de verdade.
 
 ## ⚠️ Limitações do plano gratuito (importante saber)
