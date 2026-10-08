@@ -75,11 +75,11 @@ def home(request):
     contexto["destaques"] = destaques
     contexto["secoes"] = [
         {"slug": "proximos", "titulo": "Próximos eventos", "icone": "ticket",
-         "eventos": qs.order_by("data_inicio")[:12]},
+         "eventos": qs.order_by("data_inicio")[:17]},
         {"slug": "mais-vendidos", "titulo": "Mais vendidos", "icone": "flame",
-         "eventos": _mais_vendidos(qs)[:12]},
+         "eventos": _mais_vendidos(qs)[:17]},
         {"slug": "fim-de-semana", "titulo": "Nesse fim de semana", "icone": "calendar",
-         "eventos": _fim_de_semana(qs)[:12]},
+         "eventos": _fim_de_semana(qs)[:17]},
     ]
     if not any(s["eventos"] for s in contexto["secoes"]):
         contexto["eventos"] = []
