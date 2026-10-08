@@ -6,3 +6,6 @@ media/
 staticfiles/
 __pycache__/
 *.pyc
+
+# ferramenta local de tunel (nao vai pro GitHub)
+cloudflared.exe
