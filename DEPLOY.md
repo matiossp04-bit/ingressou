@@ -39,7 +39,22 @@ SITE_URL=https://ingressou-abcd.onrender.com
 CSRF_TRUSTED_ORIGINS=https://ingressou-abcd.onrender.com
 ```
 
-## Passo 4 — Criar seu usuário admin (com senha forte!)
+## Passo 5 — Mercado Pago em produção (receber de verdade)
+
+1. No painel do MP (mercadopago.com.br/developers/panel) → sua aplicação →
+   **Credenciais de produção** (ative se pedir) → copie o **Access Token de produção**
+2. No Render → **Environment** do serviço, adicione/ajuste:
+   ```
+   MP_ACCESS_TOKEN=<access token de produção>
+   MP_SANDBOX=False
+   ```
+3. No painel do MP → **NOTIFICAÇÕES → Webhooks** → cadastre a URL definitiva:
+   `https://SEU-ENDERECO.onrender.com/pagamentos/webhook/` (evento: Pagamentos)
+4. Garanta uma **chave Pix cadastrada** no app do Mercado Pago (sem ela o Pix não aparece no checkout)
+5. Faça uma compra-teste real de valor baixo e confira: pedido confirmado, QR no e-mail,
+   e o custo do gateway aparecendo no Painel financeiro. Depois estorne pelo painel do MP se quiser.
+
+## Passo 6 — Criar seu usuário admin (com senha forte!)
 
 No painel do Render → **Shell** do serviço:
 
@@ -48,17 +63,17 @@ python manage.py createsuperuser
 ```
 
 Use uma senha forte — esta é a porta do seu painel financeiro.
+Depois crie também as contas de **Recepção** (admin → Usuários → perfil tipo "Recepção").
 
-## Passo 5 — Cadastrar os eventos de verdade
+## Passo 7 — Cadastrar os eventos de verdade
 
-Acesse `https://seu-endereco.onrender.com/admin/`, apague os eventos de
-demonstração e cadastre os reais (com fotos de capa).
+Acesse `https://seu-endereco.onrender.com/admin/` e cadastre os eventos reais
+(com banners), ou aprove os eventos que os produtores enviarem pela plataforma.
 
 ## Depois (quando quiser)
 
-- **Domínio próprio** (`ingressou.com.br`): compre no Registro.br e aponte no Render → Settings → Custom Domains (grátis, HTTPS automático)
-- **Mercado Pago real**: preencha `MP_ACCESS_TOKEN` nas variáveis de ambiente do Render
-- **E-mail real**: configure as variáveis `EMAIL_*` (ver `.env.example`)
+- **Domínio próprio** (`ingressou.com.br`): compre no Registro.br e aponte no Render → Settings → Custom Domains (grátis, HTTPS automático). Depois ajuste `ALLOWED_HOSTS`, `SITE_URL`, `CSRF_TRUSTED_ORIGINS` e o webhook do MP.
+- **E-mail real**: configure as variáveis `EMAIL_*` (ver `.env.example`) para os ingressos chegarem por e-mail de verdade.
 
 ## ⚠️ Limitações do plano gratuito (importante saber)
 
