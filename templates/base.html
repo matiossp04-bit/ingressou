@@ -19,7 +19,7 @@
 </head>
 <body>
   <header class="topo">
-    <a class="logo" href="{% url 'home' %}">Ingressou<span>.</span></a>
+    <a class="logo" href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" alt="Ingressou"></a>
     <nav>
       <a href="{% url 'home' %}">Eventos</a>
       <a href="{% url 'meus_ingressos' %}">Meus ingressos</a>
@@ -44,7 +44,7 @@
   <footer class="rodape">
     <div class="colunas">
       <div>
-        <div class="logo">Ingressou<span>.</span></div>
+        <div class="logo"><img src="{% static 'img/logo.png' %}" alt="Ingressou"></div>
         <p style="font-size:14px;margin-top:10px">A forma mais simples de comprar e vender ingressos. Comprou, ingressou!</p>
       </div>
       <div>

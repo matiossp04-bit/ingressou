@@ -27,8 +27,8 @@ header.topo {
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 50; box-shadow: var(--sombra);
 }
-.topo .logo { color: #fff; text-decoration: none; font-weight: 800; font-size: 24px; letter-spacing: -.5px; }
-.topo .logo span { color: #ffd166; }
+.topo .logo { display: flex; align-items: center; text-decoration: none; }
+.topo .logo img { height: 40px; width: auto; display: block; }
 .topo nav a { color: #fff; text-decoration: none; font-size: 14px; font-weight: 600; margin-left: 20px; opacity: .92; }
 .topo nav a:hover { opacity: 1; text-decoration: underline; }
 
@@ -223,6 +223,5 @@ footer.rodape { background: #17122b; color: #b9b3d9; margin-top: 70px; padding: 
 .rodape h4 { color: #fff; font-size: 14px; margin-bottom: 12px; }
 .rodape a { color: #b9b3d9; text-decoration: none; display: block; font-size: 14px; padding: 4px 0; }
 .rodape a:hover { color: #fff; }
-.rodape .logo { color: #fff; font-weight: 800; font-size: 22px; }
-.rodape .logo span { color: #ffd166; }
+.rodape .logo img { height: 34px; width: auto; display: block; }
 .rodape .final { max-width: 1100px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid #2c2450; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }

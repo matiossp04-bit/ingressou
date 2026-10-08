@@ -1,5 +1,0 @@
-[08/Oct/2026 16:26:42] "GET / HTTP/1.1" 200 22035
-[08/Oct/2026 16:27:30] "GET /conta/entrar/ HTTP/1.1" 200 3176
-[08/Oct/2026 16:27:30] "GET /static/css/style.css HTTP/1.1" 304 0
-[08/Oct/2026 16:27:45] "POST /conta/entrar/ HTTP/1.1" 302 0
-[08/Oct/2026 16:27:45] "GET /conta/ HTTP/1.1" 200 8223
