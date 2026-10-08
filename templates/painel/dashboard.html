@@ -3,7 +3,10 @@
 {% block titulo %}Painel financeiro — Ingressou{% endblock %}
 {% block conteudo %}
 <h1 style="margin-bottom:4px">{% icon "carteira" tamanho=28 %} Painel financeiro</h1>
-<p class="muted" style="margin-bottom:20px">Quanto sobra de verdade para o Ingressou em cada evento. Pedidos pendentes agora: {{ pendentes }}</p>
+<p class="muted" style="margin-bottom:20px">
+  Quanto sobra de verdade para o Ingressou em cada evento. Pedidos pendentes agora: {{ pendentes }}
+  · <strong>A repassar aos produtores: R$ {{ total_a_repassar|dinheiro }}</strong>
+</p>
 
 <div class="card" style="background:#2e1a66;color:#fff">
   <h2 style="margin-bottom:12px">Resumo geral (todos os eventos)</h2>
@@ -35,6 +38,7 @@
   <p class="muted" style="margin-bottom:12px">
     Produtor: {{ e.evento.produtor.nome }} · {{ e.evento.data_inicio|date:"d/m/Y" }}
     · <a href="{% url 'painel_evento' e.evento.id %}">ver pedidos</a>
+    · <a href="{% url 'exportar_participantes' e.evento.id %}">{% icon "lista" tamanho=13 %} exportar participantes (CSV)</a>
   </p>
   {% if e.vendas %}
   <table>
@@ -48,6 +52,26 @@
       <td class="num total-destaque">R$ {{ e.lucro_plataforma|dinheiro }}</td>
     </tr>
   </table>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--borda)">
+    <div>
+      {% if e.repasse_pendente > 0 %}
+      <span style="background:#e8a33d;color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px">A REPASSAR R$ {{ e.repasse_pendente|dinheiro }}</span>
+      {% if e.repasse_valor_pago > 0 %}<span class="muted" style="margin-left:8px">(já pago: R$ {{ e.repasse_valor_pago|dinheiro }} em {{ e.repasse_pago_em|date:"d/m/Y" }})</span>{% endif %}
+      {% else %}
+      <span style="background:var(--verde);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px">REPASSADO ✓ {{ e.repasse_pago_em|date:"d/m/Y" }}</span>
+      {% endif %}
+    </div>
+    <form method="post" action="{% url 'marcar_repasse' e.evento.id %}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      {% csrf_token %}
+      {% if e.repasse_pendente > 0 %}
+      <input name="observacao" placeholder="Obs. (ex.: PIX enviado)" style="margin:0;max-width:220px">
+      <button class="btn" type="submit">Marcar como repassado</button>
+      {% else %}
+      <button class="btn btn-sec" type="submit" name="desfazer" value="1">Desfazer repasse</button>
+      {% endif %}
+    </form>
+  </div>
   {% else %}
   <p class="muted">Nenhuma venda paga ainda.</p>
   {% endif %}

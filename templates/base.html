@@ -4,6 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Ingressou — Seus eventos, seus ingressos{% endblock %}</title>
+  {% block metas %}
+  <meta name="description" content="Compre e venda ingressos para os melhores eventos. Comprou, ingressou!">
+  <meta property="og:site_name" content="Ingressou">
+  <meta property="og:title" content="Ingressou — Seus eventos, seus ingressos">
+  <meta property="og:description" content="Compre e venda ingressos para os melhores eventos. Comprou, ingressou!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="summary_large_image">
+  {% endblock %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">

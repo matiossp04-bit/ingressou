@@ -180,6 +180,24 @@ class RequerimentoEvento(Evento):
         verbose_name_plural = "📥 Requerimentos de eventos"
 
 
+class Repasse(models.Model):
+    """Controle financeiro do admin: o que já foi pago ao produtor por evento."""
+
+    evento = models.OneToOneField(Evento, on_delete=models.CASCADE, related_name="repasse_controle")
+    valor_pago = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    pago_em = models.DateTimeField(null=True, blank=True)
+    observacao = models.CharField(max_length=200, blank=True,
+                                  help_text="Ex.: PIX enviado, comprovante nº, acordo especial")
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Repasse ao produtor"
+        verbose_name_plural = "Repasses aos produtores"
+
+    def __str__(self):
+        return f"Repasse {self.evento.titulo} — R$ {self.valor_pago}"
+
+
 class TipoIngresso(models.Model):
     """Lote/tipo de ingresso: Pista, VIP, Meia, 1º lote etc.
 

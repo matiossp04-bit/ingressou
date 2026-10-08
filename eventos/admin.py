@@ -1,6 +1,12 @@
 from django.contrib import admin, messages
 
-from .models import Configuracao, Evento, Produtor, RequerimentoEvento, TipoIngresso
+from .models import Configuracao, Evento, Produtor, Repasse, RequerimentoEvento, TipoIngresso
+
+
+@admin.register(Repasse)
+class RepasseAdmin(admin.ModelAdmin):
+    list_display = ("evento", "valor_pago", "pago_em", "atualizado_em")
+    search_fields = ("evento__titulo",)
 
 
 class TipoIngressoInline(admin.TabularInline):

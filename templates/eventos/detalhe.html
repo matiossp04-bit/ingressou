@@ -2,6 +2,17 @@
 {% load dinheiro icones %}
 {% block titulo %}{{ evento.titulo }} — Ingressou{% endblock %}
 
+{% block metas %}
+<meta name="description" content="{{ evento.data_inicio|date:'d/m/Y H:i' }} · {{ evento.local }} — {{ evento.cidade }}. Garanta seu ingresso no Ingressou!">
+<meta property="og:site_name" content="Ingressou">
+<meta property="og:title" content="{{ evento.titulo }}">
+<meta property="og:description" content="{{ evento.data_inicio|date:'d/m/Y H:i' }} · {{ evento.local }} — {{ evento.cidade }}. Garanta seu ingresso!">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if evento.imagem %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ evento.imagem.url }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
 {% block hero %}
   {% if evento.imagem %}
   <img class="banner-evento" src="{{ evento.imagem.url }}" alt="{{ evento.titulo }}">

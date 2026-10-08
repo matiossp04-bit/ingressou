@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 
 from eventos.models import Evento, TipoIngresso
+from painel.exports import csv_participantes
 from .forms import CriarContaForm
 from .forms_evento import CriarEventoForm, GerenciarIngressoForm, PrimeiroIngressoForm
 
@@ -143,6 +144,16 @@ def gerenciar_ingressos(request, evento_id):
         "espera_ids": {t.id for t in evento.lotes_em_espera},
         "form": GerenciarIngressoForm(),
     })
+
+
+@login_required(login_url="/conta/entrar/")
+def exportar_participantes_produtor(request, evento_id):
+    """Produtor baixa a lista de participantes do próprio evento."""
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+    evento = get_object_or_404(Evento, pk=evento_id, produtor=produtor)
+    return csv_participantes(evento)
 
 
 @login_required(login_url="/conta/entrar/")
