@@ -39,7 +39,7 @@ SITE_URL=https://ingressou-abcd.onrender.com
 CSRF_TRUSTED_ORIGINS=https://ingressou-abcd.onrender.com
 ```
 
-## Passo 5 — Mercado Pago em produção (receber de verdade)
+## Passo 4 — Mercado Pago em produção (receber de verdade)
 
 1. No painel do MP (mercadopago.com.br/developers/panel) → sua aplicação →
    **Credenciais de produção** (ative se pedir) → copie o **Access Token de produção**
@@ -54,18 +54,19 @@ CSRF_TRUSTED_ORIGINS=https://ingressou-abcd.onrender.com
 5. Faça uma compra-teste real de valor baixo e confira: pedido confirmado, QR no e-mail,
    e o custo do gateway aparecendo no Painel financeiro. Depois estorne pelo painel do MP se quiser.
 
-## Passo 6 — Criar seu usuário admin (com senha forte!)
+## Passo 5 — Definir a senha do seu usuário admin (com senha forte!)
 
-No painel do Render → **Shell** do serviço:
+O admin é criado **automaticamente no build** (o plano gratuito do Render não tem Shell).
+Você só precisa definir a senha dele:
 
-```bash
-python manage.py createsuperuser
-```
+1. No painel do Render → seu serviço → **Environment**
+2. Edite a variável `DJANGO_SUPERUSER_PASSWORD` e coloque uma **senha forte** —
+   esta é a porta do seu painel financeiro
+3. Salve (o Render faz um novo deploy sozinho e cria o usuário `admin`)
 
-Use uma senha forte — esta é a porta do seu painel financeiro.
 Depois crie também as contas de **Recepção** (admin → Usuários → perfil tipo "Recepção").
 
-## Passo 7 — Cadastrar os eventos de verdade
+## Passo 6 — Cadastrar os eventos de verdade
 
 Acesse `https://seu-endereco.onrender.com/admin/` e cadastre os eventos reais
 (com banners), ou aprove os eventos que os produtores enviarem pela plataforma.
