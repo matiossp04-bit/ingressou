@@ -54,6 +54,10 @@
       box.style.background = '#e8a33d';
       titulo.textContent = 'JÁ UTILIZADO';
       detalhe.textContent = dados.tipo + ' · ' + dados.comprador + ' — baixa dada às ' + dados.usado_em;
+    } else if (status === 'sem_permissao') {
+      box.style.background = 'var(--vermelho)';
+      titulo.textContent = 'SEM PERMISSÃO';
+      detalhe.textContent = 'Este ingresso é do evento "' + dados.evento + '", que sua conta não está autorizada a bipar.';
     } else {
       box.style.background = 'var(--vermelho)';
       titulo.textContent = 'INGRESSO NÃO ENCONTRADO';

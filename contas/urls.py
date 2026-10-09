@@ -10,6 +10,9 @@ urlpatterns = [
     path("produtor/criar-evento/", views.criar_evento, name="criar_evento"),
     path("produtor/evento/<int:evento_id>/ingressos/", views.gerenciar_ingressos, name="gerenciar_ingressos"),
     path("produtor/evento/<int:evento_id>/participantes.csv", views.exportar_participantes_produtor, name="exportar_participantes_produtor"),
+    path("produtor/portaria/", views.portaria, name="portaria"),
+    path("produtor/portaria/nova/", views.portaria_nova, name="portaria_nova"),
+    path("produtor/portaria/<int:perfil_id>/editar/", views.portaria_editar, name="portaria_editar"),
     path(
         "conta/entrar/",
         auth_views.LoginView.as_view(template_name="contas/login.html"),

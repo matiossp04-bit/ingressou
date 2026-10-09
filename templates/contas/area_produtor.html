@@ -4,7 +4,10 @@
 {% block conteudo %}
 <h1 style="margin-bottom:4px">{% icon "mic" tamanho=28 %} Área do produtor</h1>
 <p class="muted" style="margin-bottom:16px">{{ produtor.nome }} · acompanhe seus eventos e repasses em tempo real.</p>
-<p style="margin-bottom:20px"><a class="btn" href="{% url 'criar_evento' %}">+ Criar meu evento</a></p>
+<p style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap">
+  <a class="btn" href="{% url 'criar_evento' %}">+ Criar meu evento</a>
+  <a class="btn btn-sec" href="{% url 'portaria' %}">{% icon "camera" tamanho=15 %} Portaria</a>
+</p>
 
 <div class="card" style="background:linear-gradient(90deg,var(--grafite),var(--grafite-2));color:#fff">
   <table style="color:#fff">

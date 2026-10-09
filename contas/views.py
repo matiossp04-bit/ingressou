@@ -8,8 +8,9 @@ from decimal import Decimal
 
 from eventos.models import Evento, TipoIngresso
 from painel.exports import csv_participantes
-from .forms import CriarContaForm
+from .forms import CriarContaForm, ContaPortariaForm, EditarPortariaForm
 from .forms_evento import CriarEventoForm, GerenciarIngressoForm, PrimeiroIngressoForm
+from .models import Perfil
 
 IngressoFormSet = formset_factory(
     PrimeiroIngressoForm, extra=1, min_num=1, validate_min=True, max_num=15, validate_max=True
@@ -18,6 +19,10 @@ IngressoFormSet = formset_factory(
 
 @login_required(login_url="/conta/entrar/")
 def minha_conta(request):
+    perfil = getattr(request.user, "perfil", None)
+    if perfil and perfil.eh_recepcao:
+        # Conta de portaria cai direto na tela de scanner
+        return redirect("recepcao")
     contexto = {}
     if request.user.is_staff:
         contexto["requerimentos_pendentes"] = Evento.objects.filter(publicado=False).count()
@@ -154,6 +159,66 @@ def exportar_participantes_produtor(request, evento_id):
         return resposta
     evento = get_object_or_404(Evento, pk=evento_id, produtor=produtor)
     return csv_participantes(evento)
+
+
+@login_required(login_url="/conta/entrar/")
+def portaria(request):
+    """Produtor gerencia as contas de portaria (recepção) dos seus eventos."""
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+    contas = (
+        Perfil.objects.filter(tipo="recepcao", produtor=produtor)
+        .select_related("usuario")
+        .prefetch_related("eventos_liberados")
+        .order_by("usuario__first_name")
+    )
+    return render(request, "contas/portaria.html", {"produtor": produtor, "contas": contas})
+
+
+@login_required(login_url="/conta/entrar/")
+def portaria_nova(request):
+    """Produtor cria uma conta de portaria escolhendo os eventos que ela pode bipar."""
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+    form = ContaPortariaForm(produtor, request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        perfil = form.salvar(produtor)
+        messages.success(
+            request,
+            f"Conta de portaria criada para '{perfil.usuario.first_name}'! "
+            f"Passe o e-mail e a senha para a equipe — eles entram em 'Minha conta' e caem direto no scanner.",
+        )
+        return redirect("portaria")
+    return render(request, "contas/portaria_form.html", {
+        "form": form, "titulo_pagina": "Nova conta de portaria",
+    })
+
+
+@login_required(login_url="/conta/entrar/")
+def portaria_editar(request, perfil_id):
+    """Edita eventos liberados / senha de uma conta de portaria, ou a exclui."""
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+    perfil = get_object_or_404(Perfil, pk=perfil_id, tipo="recepcao", produtor=produtor)
+
+    if request.method == "POST" and request.POST.get("acao") == "excluir":
+        nome = perfil.usuario.first_name
+        perfil.usuario.delete()  # apaga usuário e perfil em cascata
+        messages.success(request, f"Conta de portaria '{nome}' excluída.")
+        return redirect("portaria")
+
+    form = EditarPortariaForm(produtor, perfil, request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.salvar(perfil)
+        messages.success(request, f"Conta '{perfil.usuario.first_name}' atualizada!")
+        return redirect("portaria")
+    return render(request, "contas/portaria_form.html", {
+        "form": form, "titulo_pagina": f"Editar conta — {perfil.usuario.first_name}",
+        "editando": perfil,
+    })
 
 
 @login_required(login_url="/conta/entrar/")

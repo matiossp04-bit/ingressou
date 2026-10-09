@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}{{ titulo_pagina }} — Ingressou{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'portaria' %}">← Voltar à portaria</a></p>
+<h1 style="margin-bottom:6px">{% icon "camera" tamanho=26 %} {{ titulo_pagina }}</h1>
+<p class="muted" style="margin-bottom:20px">
+  {% if editando %}Ajuste os eventos que essa equipe pode bipar ou troque a senha de acesso.{% else %}A equipe vai usar esse e-mail e senha para entrar e bipar os ingressos na entrada.{% endif %}
+</p>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card">
+    {% for campo in form %}
+      {% if campo.name != "eventos" %}
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+      {{ campo }}
+      {% if campo.help_text %}<p class="muted" style="margin-top:2px">{{ campo.help_text }}</p>{% endif %}
+      {% for erro in campo.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+      {% endif %}
+    {% endfor %}
+
+    <label id="label-eventos">{{ form.eventos.label }} *</label>
+    <p class="muted" style="margin-bottom:6px">Clique no campo abaixo e marque os eventos que essa conta pode bipar.</p>
+
+    <div class="picker-eventos" id="picker">
+      <button type="button" class="picker-campo" id="picker-campo" aria-haspopup="true" aria-expanded="false">
+        <span id="picker-resumo">Clique para escolher os eventos…</span>
+        <span class="picker-seta">▾</span>
+      </button>
+      <div class="picker-painel" id="picker-painel">
+        {{ form.eventos }}
+      </div>
+    </div>
+    {% for erro in form.eventos.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+
+    <p style="margin-top:18px">
+      <button class="btn" type="submit">{% if editando %}Salvar alterações{% else %}Criar conta de portaria{% endif %}</button>
+    </p>
+  </div>
+</form>
+
+<style>
+.picker-eventos { position: relative; max-width: 560px; }
+.picker-campo {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border: 1px solid var(--borda); border-radius: 10px;
+  background: #fff; font-size: 14px; cursor: pointer; text-align: left; color: var(--texto-suave);
+}
+.picker-campo.aberto { border-color: var(--roxo); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+.picker-campo .picker-seta { font-size: 16px; transition: transform .2s; }
+.picker-campo.aberto .picker-seta { transform: rotate(180deg); }
+.picker-painel {
+  display: none; margin-top: 6px; border: 1px solid var(--borda); border-radius: 10px;
+  background: #fff; box-shadow: var(--sombra-forte); max-height: 280px; overflow-y: auto;
+}
+.picker-painel.aberto { display: block; }
+.picker-painel ul { list-style: none; padding: 6px; margin: 0; }
+.picker-painel li label {
+  display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+  border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--texto);
+}
+.picker-painel li label:hover { background: #f1f5fd; }
+.picker-painel li label:has(input:checked) { background: #e4efff; color: var(--roxo-escuro); }
+.picker-painel input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--roxo); margin: 0; }
+</style>
+
+<script>
+(function () {
+  var campo = document.getElementById('picker-campo');
+  var painel = document.getElementById('picker-painel');
+  var resumo = document.getElementById('picker-resumo');
+
+  function atualizarResumo() {
+    var marcados = painel.querySelectorAll('input[type="checkbox"]:checked').length;
+    if (marcados === 0) {
+      resumo.textContent = 'Clique para escolher os eventos…';
+      resumo.style.color = '';
+    } else {
+      resumo.textContent = marcados + (marcados === 1 ? ' evento selecionado' : ' eventos selecionados');
+      resumo.style.color = 'var(--roxo-escuro)';
+      resumo.style.fontWeight = '700';
+    }
+  }
+
+  campo.addEventListener('click', function () {
+    var aberto = painel.classList.toggle('aberto');
+    campo.classList.toggle('aberto', aberto);
+    campo.setAttribute('aria-expanded', aberto);
+  });
+  painel.addEventListener('change', atualizarResumo);
+  document.addEventListener('click', function (e) {
+    if (!document.getElementById('picker').contains(e.target)) {
+      painel.classList.remove('aberto');
+      campo.classList.remove('aberto');
+      campo.setAttribute('aria-expanded', 'false');
+    }
+  });
+  atualizarResumo();
+})();
+</script>
+{% endblock %}

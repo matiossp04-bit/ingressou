@@ -9,3 +9,7 @@ __pycache__/
 
 # ferramenta local de tunel (nao vai pro GitHub)
 cloudflared.exe
+
+# previews locais e log do dev server
+prints_preview/
+server.log

@@ -37,6 +37,15 @@ def recepcao_required(view):
     return wrapper
 
 
+def _pode_bipar_evento(user, evento_id):
+    """Staff bipa qualquer evento; conta de recepção só bipa os eventos
+    que o produtor liberou para ela."""
+    if user.is_staff:
+        return True
+    perfil = getattr(user, "perfil", None)
+    return bool(perfil and perfil.eventos_liberados.filter(pk=evento_id).exists())
+
+
 @require_POST
 def comprar(request, slug):
     """Recebe as quantidades escolhidas na página do evento e abre o checkout."""
@@ -201,6 +210,13 @@ def pedido_confirmado(request, uuid):
 def validar_ingresso(request, codigo):
     """Página de validação na entrada do evento (recepção/staff, logada)."""
     ingresso = get_object_or_404(Ingresso, codigo=codigo)
+    if not _pode_bipar_evento(request.user, ingresso.item.pedido.evento_id):
+        messages.error(
+            request,
+            f"Este ingresso é do evento '{ingresso.item.pedido.evento.titulo}', "
+            "que a sua conta de portaria não está autorizada a bipar.",
+        )
+        return redirect("recepcao")
     if request.method == "POST" and not ingresso.validado:
         ingresso.usado_em = timezone.now()
         ingresso.save(update_fields=["usado_em"])
@@ -237,6 +253,12 @@ def bipar_ingresso(request):
         )
         if not ingresso:
             return JsonResponse({"status": "invalido"}, status=404)
+
+        if not _pode_bipar_evento(request.user, ingresso.item.pedido.evento_id):
+            return JsonResponse(
+                {"status": "sem_permissao", "evento": ingresso.item.pedido.evento.titulo},
+                status=403,
+            )
 
         dados = {
             "tipo": ingresso.item.tipo_ingresso.nome,

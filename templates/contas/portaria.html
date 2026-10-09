@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load icones %}
+{% block titulo %}Portaria — Área do produtor — Ingressou{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
+<h1 style="margin-bottom:4px">{% icon "camera" tamanho=26 %} Portaria</h1>
+<p class="muted" style="margin-bottom:16px">
+  Crie contas para a equipe que vai bipar os ingressos na entrada. Cada conta só consegue
+  dar baixa nos eventos que você liberar — evento novo não entra automaticamente.
+</p>
+<p style="margin-bottom:20px"><a class="btn" href="{% url 'portaria_nova' %}">+ Nova conta de portaria</a></p>
+
+{% for conta in contas %}
+<div class="card">
+  <h2 style="font-size:18px">{% icon "check" tamanho=16 %} {{ conta.usuario.first_name }}</h2>
+  <p class="muted" style="margin:6px 0 10px">{% icon "mail" tamanho=14 %} {{ conta.usuario.email }}</p>
+  <p style="font-size:13px;font-weight:700;margin-bottom:6px">Eventos que essa conta pode bipar:</p>
+  <p style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    {% for evento in conta.eventos_liberados.all %}
+    <span style="background:#eef1f6;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600">
+      {% icon "ticket" tamanho=12 %} {{ evento.titulo }} — {{ evento.data_inicio|date:"d/m/Y" }}
+    </span>
+    {% empty %}
+    <span class="muted" style="font-size:13px">Nenhum evento liberado — edite para liberar.</span>
+    {% endfor %}
+  </p>
+  <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <a class="btn btn-sec" href="{% url 'portaria_editar' conta.id %}">{% icon "engrenagem" tamanho=14 %} Editar eventos / senha</a>
+    <form method="post" action="{% url 'portaria_editar' conta.id %}" style="margin:0"
+          onsubmit="return confirm('Excluir a conta de portaria {{ conta.usuario.first_name }}? A equipe perde o acesso na hora.');">
+      {% csrf_token %}
+      <input type="hidden" name="acao" value="excluir">
+      <button class="btn" style="background:var(--vermelho)" type="submit">Excluir</button>
+    </form>
+  </p>
+</div>
+{% empty %}
+<div class="card">
+  <p>Você ainda não tem contas de portaria. Crie a primeira para a equipe que vai ficar na entrada do seu evento! 🎟️</p>
+</div>
+{% endfor %}
+
+<div class="card" style="background:#eef1f6">
+  <p style="font-size:13px;margin:0">
+    <strong>Como a equipe usa:</strong> a pessoa entra em <strong>Minha conta</strong> com o e-mail e a senha
+    que você criou e cai direto na tela de scanner. Ela não vê financeiro, não edita evento — só bipa ingresso.
+  </p>
+</div>
+{% endblock %}
