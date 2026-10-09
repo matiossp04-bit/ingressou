@@ -13,6 +13,9 @@
     <h2 style="font-size:18px;margin-bottom:8px">{% icon "lista" tamanho=18 %} Informações do evento</h2>
     {% for campo in form %}
       {% if campo.name != "imagem" and campo.name != "banner" %}
+      {% if campo.name == "cep" %}
+      <h3 style="font-size:15px;margin:18px 0 4px;color:var(--texto-suave)">{% icon "pin" tamanho=15 %} Endereço do evento (obrigatório)</h3>
+      {% endif %}
       <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
       {{ campo }}
       {% for erro in campo.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
@@ -112,6 +115,40 @@
   });
 
   renumerar();
+
+  /* ===== Certinho verde: validação ao vivo dos campos ===== */
+  var formEl = document.querySelector('form');
+
+  function marcarCampo(el) {
+    if (!el.id || el.type === 'checkbox' || el.type === 'hidden') return;
+    if (!el.required) return;
+    var label = document.querySelector('label[for="' + el.id + '"]');
+    if (!label) return;
+    var ck = label.querySelector('.check-ok');
+    if (!ck) {
+      ck = document.createElement('span');
+      ck.className = 'check-ok';
+      ck.textContent = '✓';
+      ck.title = 'Campo preenchido corretamente';
+      label.appendChild(ck);
+    }
+    var valido = el.type === 'file'
+      ? el.files.length > 0
+      : (el.value.trim() !== '' && el.checkValidity());
+    ck.style.display = valido ? 'inline' : 'none';
+    el.classList.toggle('input-ok', valido);
+  }
+
+  function marcarTodos() {
+    formEl.querySelectorAll('input[required], select[required], textarea[required]').forEach(marcarCampo);
+  }
+
+  formEl.addEventListener('input', function (e) { marcarCampo(e.target); });
+  formEl.addEventListener('change', function (e) { marcarCampo(e.target); });
+  document.getElementById('add-ingresso').addEventListener('click', function () {
+    setTimeout(marcarTodos, 0);
+  });
+  marcarTodos();
 })();
 </script>
 {% endblock %}

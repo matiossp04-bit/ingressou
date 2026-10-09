@@ -167,6 +167,7 @@ def criar_evento(request):
     formset = IngressoFormSet(request.POST or None, prefix="ingressos")
     if request.method == "POST" and form.is_valid() and formset.is_valid():
         evento = form.save(commit=False)
+        evento.local = form.local_completo()  # endereço discriminado em uma linha
         evento.produtor = produtor
         evento.publicado = False   # admin aprova antes de ir ao ar
         evento.destaque = False    # admin decide o que vai ao carrossel

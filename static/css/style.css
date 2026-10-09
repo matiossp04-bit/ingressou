@@ -209,6 +209,8 @@ label { font-size: 13px; font-weight: 600; color: #4a4a60; display: block; margi
 .alerta { padding: 13px 18px; border-radius: 10px; margin-bottom: 16px; background: #fff4d6; color: #7a5b00; }
 .alerta.ok, .ok { background: #dcf5e3; color: #14532d; }
 .total-destaque { font-size: 22px; font-weight: 800; color: var(--roxo); }
+.check-ok { color: var(--verde); font-weight: 800; margin-left: 6px; display: none; }
+.input-ok { border-color: var(--verde) !important; }
 .muted { color: var(--texto-suave); font-size: 13px; }
 .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
