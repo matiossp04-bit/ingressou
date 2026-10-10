@@ -175,6 +175,85 @@ def webhook_mercado_pago(request):
     return JsonResponse({"ok": True})
 
 
+def lista_vip_captura(request, slug):
+    """Página de captura da Lista VIP do evento (pública, sem login).
+
+    FREE: cadastro direto → ingresso + QR Code na hora.
+    PAGA: cadastro → checkout Mercado Pago → QR Code após aprovar.
+    """
+    from contas.forms import validar_cpf
+    from eventos.models import ListaVIP
+
+    evento = get_object_or_404(Evento, slug=slug, publicado=True)
+    lista = get_object_or_404(ListaVIP, evento=evento)
+    config = Configuracao.get_solo()
+    total_com_taxa = lista.preco + (lista.preco * config.taxa_plataforma / 100)
+
+    if request.method == "POST":
+        if not lista.ativa or lista.esgotada:
+            messages.error(request, "Essa lista VIP está encerrada.")
+            return redirect("lista_vip_captura", slug=slug)
+
+        nome = request.POST.get("nome", "").strip()
+        email = request.POST.get("email", "").strip().lower()
+        cpf = "".join(c for c in request.POST.get("cpf", "") if c.isdigit())
+        whatsapp = request.POST.get("whatsapp", "").strip()
+
+        if not nome or not email or not whatsapp:
+            messages.error(request, "Preencha nome, e-mail e WhatsApp.")
+            return redirect("lista_vip_captura", slug=slug)
+        if not validar_cpf(cpf):
+            messages.error(request, "CPF inválido. Confira os números digitados.")
+            return redirect("lista_vip_captura", slug=slug)
+
+        ja_na_lista = Pedido.objects.filter(
+            itens__tipo_ingresso=lista.tipo_ingresso,
+            comprador_cpf=cpf,
+            status__in=("pendente", "pago"),
+        ).exists()
+        if ja_na_lista:
+            messages.warning(request, "Esse CPF já está na lista VIP deste evento! 😊")
+            return redirect("lista_vip_captura", slug=slug)
+
+        with transaction.atomic():
+            tipo = TipoIngresso.objects.select_for_update().get(pk=lista.tipo_ingresso_id)
+            if tipo.disponivel < 1:
+                messages.error(request, "As vagas da lista VIP acabaram agorinha. 😢")
+                return redirect("lista_vip_captura", slug=slug)
+            pedido = Pedido.objects.create(
+                evento=evento,
+                comprador_nome=nome,
+                comprador_email=email,
+                comprador_cpf=cpf,
+                comprador_whatsapp=whatsapp,
+                expira_em=timezone.now() + timedelta(minutes=config.minutos_expiracao_pedido),
+            )
+            tipo.quantidade_vendida += 1
+            tipo.save(update_fields=["quantidade_vendida"])
+            ItemPedido.objects.create(
+                pedido=pedido, tipo_ingresso=tipo, quantidade=1, preco_unitario=lista.preco,
+            )
+            pedido.calcular_totais()
+            pedido.save()
+
+            if lista.tipo == "free":
+                pedido.confirmar_pagamento("gratuito")
+
+        if lista.tipo == "free":
+            try:
+                enviar_ingressos(pedido)
+            except Exception:
+                pass  # e-mail é best-effort; o QR já aparece na tela
+            return redirect("pedido_confirmado", uuid=pedido.uuid)
+        return redirect("pagamento", uuid=pedido.uuid)
+
+    return render(request, "pedidos/lista_vip_captura.html", {
+        "evento": evento, "lista": lista,
+        "total_com_taxa": total_com_taxa,
+        "taxa_percentual": config.taxa_plataforma,
+    })
+
+
 def meus_ingressos(request):
     """Comprador recupera seus ingressos com e-mail + CPF (sem precisar de conta)."""
     pedidos = None

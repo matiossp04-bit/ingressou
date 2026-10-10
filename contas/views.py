@@ -6,9 +6,9 @@ from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 
-from eventos.models import Evento, TipoIngresso
+from eventos.models import Evento, ListaVIP, TipoIngresso
 from painel.exports import csv_participantes
-from .forms import CriarContaForm, ContaPortariaForm, EditarPortariaForm
+from .forms import CriarContaForm, ContaPortariaForm, EditarPortariaForm, GerarListaVIPForm
 from .forms_evento import CriarEventoForm, GerenciarIngressoForm, PrimeiroIngressoForm
 from .models import Perfil
 
@@ -142,9 +142,10 @@ def gerenciar_ingressos(request, evento_id):
                 messages.success(request, f"'{nome}' atualizado!")
         return redirect("gerenciar_ingressos", evento_id=evento.id)
 
+    tipos_visiveis = evento.tipos_ingresso.filter(lista_vip_origem__isnull=True)
     return render(request, "contas/gerenciar_ingressos.html", {
         "evento": evento,
-        "tipos": evento.tipos_ingresso.all(),
+        "tipos": tipos_visiveis,
         "vendaveis_ids": {t.id for t in evento.tipos_disponiveis},
         "espera_ids": {t.id for t in evento.lotes_em_espera},
         "form": GerenciarIngressoForm(),
@@ -218,6 +219,56 @@ def portaria_editar(request, perfil_id):
     return render(request, "contas/portaria_form.html", {
         "form": form, "titulo_pagina": f"Editar conta — {perfil.usuario.first_name}",
         "editando": perfil,
+    })
+
+
+@login_required(login_url="/conta/entrar/")
+def lista_vip(request):
+    """Aba Lista VIP: produtor gera listas (free ou pagas) para seus eventos
+    e acompanha as vagas. Cada lista tem um link de captura próprio."""
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+
+    if request.method == "POST":
+        acao = request.POST.get("acao")
+
+        if acao == "criar":
+            form = GerarListaVIPForm(produtor, request.POST)
+            if form.is_valid():
+                lista = form.salvar()
+                messages.success(
+                    request,
+                    f"Lista VIP {'gratuita' if lista.tipo == 'free' else 'paga'} criada para "
+                    f"'{lista.evento.titulo}'! Divulgue o link de captura abaixo. 🎉",
+                )
+                return redirect("lista_vip")
+        else:
+            lista = get_object_or_404(ListaVIP, pk=request.POST.get("lista_id"), evento__produtor=produtor)
+            if acao == "alternar":
+                lista.ativa = not lista.ativa
+                lista.save(update_fields=["ativa"])
+                messages.success(request, f"Lista de '{lista.evento.titulo}' {'reativada' if lista.ativa else 'pausada'}.")
+            elif acao == "excluir":
+                if lista.vagas_usadas > 0:
+                    messages.error(request, "Essa lista já tem gente cadastrada — não dá para excluir, apenas pausar.")
+                else:
+                    tipo_oculto = lista.tipo_ingresso
+                    lista.delete()
+                    if tipo_oculto:
+                        tipo_oculto.delete()
+                    messages.success(request, "Lista VIP excluída.")
+            return redirect("lista_vip")
+    else:
+        form = GerarListaVIPForm(produtor)
+
+    listas = (
+        ListaVIP.objects.filter(evento__produtor=produtor)
+        .select_related("evento", "tipo_ingresso")
+        .order_by("-criado_em")
+    )
+    return render(request, "contas/lista_vip.html", {
+        "produtor": produtor, "listas": listas, "form": form,
     })
 
 

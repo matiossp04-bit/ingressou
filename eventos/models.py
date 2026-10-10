@@ -236,3 +236,52 @@ class TipoIngresso(models.Model):
     @property
     def eh_lote(self):
         return self.ordem > 0
+
+
+class ListaVIP(models.Model):
+    """Lista VIP de um evento: página de captura própria, gratuita ou paga.
+
+    O produtor gera a lista na área dele e divulga o link. Quem entra na
+    lista recebe um ingresso com QR Code como qualquer compra — bipa na
+    portaria normalmente. O estoque da lista é separado dos ingressos
+    normais (usa um TipoIngresso oculto, criado automaticamente).
+    """
+
+    TIPOS = [
+        ("free", "Gratuita — cadastro direto"),
+        ("paga", "Paga — checkout Mercado Pago"),
+    ]
+
+    evento = models.OneToOneField(Evento, on_delete=models.CASCADE, related_name="lista_vip")
+    tipo = models.CharField(max_length=5, choices=TIPOS, default="free")
+    preco = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        help_text="Só para lista PAGA: valor que o PRODUTOR recebe. A taxa da plataforma é somada no checkout.",
+    )
+    quantidade_limite = models.PositiveIntegerField("Quantidade de vagas da lista")
+    ativa = models.BooleanField(default=True)
+    tipo_ingresso = models.OneToOneField(
+        TipoIngresso, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="lista_vip_origem",
+        help_text="Tipo de ingresso oculto que guarda o estoque da lista.",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Lista VIP"
+        verbose_name_plural = "Listas VIP"
+
+    def __str__(self):
+        return f"Lista VIP ({self.get_tipo_display()}) — {self.evento.titulo}"
+
+    @property
+    def vagas_usadas(self):
+        return self.tipo_ingresso.quantidade_vendida if self.tipo_ingresso else 0
+
+    @property
+    def vagas_restantes(self):
+        return max(self.quantidade_limite - self.vagas_usadas, 0)
+
+    @property
+    def esgotada(self):
+        return self.vagas_restantes <= 0

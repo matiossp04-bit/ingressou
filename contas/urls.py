@@ -13,6 +13,7 @@ urlpatterns = [
     path("produtor/portaria/", views.portaria, name="portaria"),
     path("produtor/portaria/nova/", views.portaria_nova, name="portaria_nova"),
     path("produtor/portaria/<int:perfil_id>/editar/", views.portaria_editar, name="portaria_editar"),
+    path("produtor/lista-vip/", views.lista_vip, name="lista_vip"),
     path(
         "conta/entrar/",
         auth_views.LoginView.as_view(template_name="contas/login.html"),

@@ -24,6 +24,7 @@ class Pedido(models.Model):
         ("", "Não definido"),
         ("pix", "Pix"),
         ("cartao", "Cartão de crédito"),
+        ("gratuito", "Gratuito (lista VIP)"),
     ]
 
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
@@ -31,6 +32,7 @@ class Pedido(models.Model):
     comprador_nome = models.CharField(max_length=200)
     comprador_email = models.EmailField()
     comprador_cpf = models.CharField(max_length=14)
+    comprador_whatsapp = models.CharField(max_length=20, blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default="pendente")
     metodo_pagamento = models.CharField(max_length=10, choices=METODOS, default="", blank=True)
 
@@ -68,7 +70,10 @@ class Pedido(models.Model):
         """Marca como pago e calcula o custo real do gateway conforme o método."""
         config = Configuracao.get_solo()
         self.metodo_pagamento = metodo
-        aliquota_mp = config.taxa_mp_pix if metodo == "pix" else config.taxa_mp_cartao
+        if metodo == "gratuito":
+            aliquota_mp = 0  # lista VIP free: sem custo de gateway
+        else:
+            aliquota_mp = config.taxa_mp_pix if metodo == "pix" else config.taxa_mp_cartao
         self.custo_gateway = q2(self.total * aliquota_mp / 100)
         self.status = "pago"
         self.pago_em = timezone.now()

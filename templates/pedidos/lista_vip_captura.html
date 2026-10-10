@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Lista VIP — {{ evento.titulo }} — Ingressou{% endblock %}
+{% block conteudo %}
+<div style="max-width:560px;margin:0 auto">
+
+  <div class="card" style="padding:0;overflow:hidden">
+    {% if evento.imagem_carrossel %}
+    <div style="position:relative">
+      <img src="{{ evento.imagem_carrossel.url }}" alt="{{ evento.titulo }}" style="width:100%;height:220px;object-fit:cover;display:block">
+      <span style="position:absolute;top:14px;left:14px;background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;font-weight:800;font-size:13px;padding:6px 14px;border-radius:999px;box-shadow:var(--sombra)">
+        ✨ LISTA VIP
+      </span>
+    </div>
+    {% endif %}
+    <div style="padding:20px">
+      <h1 style="font-size:22px;margin-bottom:4px">{{ evento.titulo }}</h1>
+      <p class="muted" style="margin-bottom:14px">
+        {% icon "calendar" tamanho=14 %} {{ evento.data_inicio|date:"d/m/Y · H:i" }} &nbsp;
+        {% icon "pin" tamanho=14 %} {{ evento.local }} — {{ evento.cidade }}
+      </p>
+
+      {% if not lista.ativa or lista.esgotada %}
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:18px;text-align:center">
+          <p style="font-size:18px;font-weight:800;color:var(--vermelho);margin-bottom:4px">Lista encerrada 😢</p>
+          <p class="muted">As vagas da lista VIP acabaram. Mas ainda dá tempo de garantir seu ingresso!</p>
+          <p style="margin-top:12px"><a class="btn" href="{% url 'evento_detalhe' evento.slug %}">Ver ingressos disponíveis</a></p>
+        </div>
+      {% else %}
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;margin-bottom:16px;text-align:center">
+          {% if lista.tipo == "free" %}
+          <p style="font-size:18px;font-weight:800;color:var(--verde);margin-bottom:2px">ENTRADA GRATUITA 🎉</p>
+          <p class="muted" style="font-size:13px">Cadastre-se e receba seu ingresso com QR Code na hora.</p>
+          {% else %}
+          <p style="font-size:18px;font-weight:800;color:var(--roxo-escuro);margin-bottom:2px">
+            R$ {{ total_com_taxa|dinheiro }} <span style="font-size:12px;font-weight:600;color:var(--texto-suave)">(já com a taxa de serviço)</span>
+          </p>
+          <p class="muted" style="font-size:13px">Pagamento seguro via Mercado Pago — Pix ou cartão. QR Code liberado na aprovação.</p>
+          {% endif %}
+          <p style="font-size:12px;color:var(--texto-suave);margin-top:6px">
+            ⏳ Restam apenas <strong>{{ lista.vagas_restantes }}</strong> de {{ lista.quantidade_limite }} vagas!
+          </p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <label for="nome">Nome completo *</label>
+          <input id="nome" name="nome" required placeholder="Seu nome como no documento">
+
+          <label for="email">E-mail *</label>
+          <input id="email" name="email" type="email" required placeholder="voce@email.com">
+
+          <label for="cpf">CPF *</label>
+          <input id="cpf" name="cpf" required placeholder="000.000.000-00" inputmode="numeric">
+          <p class="muted" style="margin-top:2px;font-size:12px">Um cadastro por CPF — assim evitamos abuso da lista. 😉</p>
+
+          <label for="whatsapp">WhatsApp *</label>
+          <input id="whatsapp" name="whatsapp" required placeholder="(11) 99999-0000" inputmode="tel">
+
+          <p style="margin-top:18px">
+            <button class="btn" type="submit" style="width:100%;font-size:16px;padding:14px">
+              {% if lista.tipo == "free" %}✨ Entrar na lista VIP grátis{% else %}Entrar na lista VIP — pagar R$ {{ total_com_taxa|dinheiro }}{% endif %}
+            </button>
+          </p>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">
+    Ingresso nominal com QR Code único · validado na entrada do evento
+  </p>
+</div>
+{% endblock %}

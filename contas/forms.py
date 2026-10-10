@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from eventos.models import Evento
+from eventos.models import Evento, ListaVIP, TipoIngresso
 from .models import Perfil
 
 
@@ -165,3 +165,68 @@ class EditarPortariaForm(_EventosPortariaMixin, forms.Form):
             perfil.usuario.set_password(nova)
             perfil.usuario.save(update_fields=["password"])
         return perfil
+
+
+class GerarListaVIPForm(forms.Form):
+    """Produtor gera a lista VIP de um evento: gratuita ou paga, com limite de vagas."""
+
+    evento = forms.ModelChoiceField(
+        label="Para qual evento?",
+        queryset=Evento.objects.none(),
+        widget=forms.RadioSelect,
+        empty_label=None,
+        error_messages={"required": "Escolha o evento da lista VIP."},
+    )
+    tipo = forms.ChoiceField(
+        label="Tipo da lista",
+        choices=ListaVIP.TIPOS,
+        widget=forms.RadioSelect,
+        initial="free",
+    )
+    preco = forms.DecimalField(
+        label="Valor da vaga (só lista paga)", required=False, min_value=1,
+        max_digits=10, decimal_places=2,
+        help_text="Você recebe exatamente esse valor por vaga. A taxa do Ingressou é somada no checkout.",
+    )
+    quantidade_limite = forms.IntegerField(
+        label="Quantidade de vagas da lista", min_value=1,
+        help_text="Quem define é você. Esgotou, a página de captura avisa que a lista encerrou.",
+    )
+
+    def __init__(self, produtor, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        campo = self.fields["evento"]
+        campo.queryset = (
+            produtor.eventos.filter(lista_vip__isnull=True)
+            .order_by("data_inicio")
+        )
+        campo.label_from_instance = (
+            lambda e: f"{e.titulo} — {e.data_inicio:%d/%m/%Y %H:%M} · {e.cidade}"
+        )
+
+    def clean(self):
+        dados = super().clean()
+        if dados.get("tipo") == "paga" and not dados.get("preco"):
+            self.add_error("preco", "Lista paga precisa de um valor (mín. R$ 1,00).")
+        return dados
+
+    def salvar(self):
+        dados = self.cleaned_data
+        evento = dados["evento"]
+        preco = dados["preco"] if dados["tipo"] == "paga" else 0
+        tipo_oculto = TipoIngresso.objects.create(
+            evento=evento,
+            nome="🎟️ Lista VIP",
+            preco=preco,
+            quantidade_total=dados["quantidade_limite"],
+            max_por_pedido=1,
+            ordem=0,
+            ativo=False,  # oculto: não aparece à venda na página do evento
+        )
+        return ListaVIP.objects.create(
+            evento=evento,
+            tipo=dados["tipo"],
+            preco=preco,
+            quantidade_limite=dados["quantidade_limite"],
+            tipo_ingresso=tipo_oculto,
+        )

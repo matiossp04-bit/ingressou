@@ -13,3 +13,7 @@ cloudflared.exe
 # previews locais e log do dev server
 prints_preview/
 server.log
+demo_capas/
+corrigir_acentos.py
+corrigir_banners.py
+gerar_roteiro.py

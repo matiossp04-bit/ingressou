@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Lista VIP — Área do produtor — Ingressou{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
+<h1 style="margin-bottom:4px">{% icon "sparkles" tamanho=26 %} Lista VIP</h1>
+<p class="muted" style="margin-bottom:20px">
+  Gere uma lista VIP para o seu evento — gratuita (cadastro direto) ou paga (Mercado Pago).
+  Quem entrar na lista recebe ingresso com QR Code, que bipa normal na portaria.
+</p>
+
+<div class="card">
+  <h2 style="font-size:18px;margin-bottom:12px">{% icon "ticket" tamanho=18 %} Gerar lista VIP</h2>
+  {% if form.fields.evento.queryset %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="acao" value="criar">
+
+    <label id="label-evento">{{ form.evento.label }} *</label>
+    <div class="picker-eventos" id="picker">
+      <button type="button" class="picker-campo" id="picker-campo" aria-haspopup="true" aria-expanded="false">
+        <span id="picker-resumo">Clique para escolher o evento…</span>
+        <span class="picker-seta">▾</span>
+      </button>
+      <div class="picker-painel" id="picker-painel">
+        {{ form.evento }}
+      </div>
+    </div>
+    {% for erro in form.evento.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+
+    <label style="margin-top:16px">{{ form.tipo.label }} *</label>
+    <div class="tipo-lista-opcoes" id="tipo-opcoes">
+      {% for opcao in form.tipo %}
+      <label class="tipo-opcao">{{ opcao.tag }} <span>{{ opcao.choice_label }}</span></label>
+      {% endfor %}
+    </div>
+
+    <div id="campo-preco" style="display:none">
+      <label for="{{ form.preco.id_for_label }}">{{ form.preco.label }} *</label>
+      {{ form.preco }}
+      <p class="muted" style="margin-top:2px">{{ form.preco.help_text }}</p>
+      {% for erro in form.preco.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+    </div>
+
+    <label for="{{ form.quantidade_limite.id_for_label }}">{{ form.quantidade_limite.label }} *</label>
+    {{ form.quantidade_limite }}
+    <p class="muted" style="margin-top:2px">{{ form.quantidade_limite.help_text }}</p>
+    {% for erro in form.quantidade_limite.errors %}<p style="color:var(--vermelho);font-size:13px;margin-top:4px">{{ erro }}</p>{% endfor %}
+
+    <p style="margin-top:18px">
+      <button class="btn" type="submit">{% icon "sparkles" tamanho=15 %} Gerar lista VIP</button>
+    </p>
+  </form>
+  {% else %}
+  <p class="muted">Todos os seus eventos já têm lista VIP. Para criar outra, cadastre um novo evento. 😉</p>
+  {% endif %}
+</div>
+
+{% for lista in listas %}
+<div class="card">
+  <h2 style="font-size:18px">{{ lista.evento.titulo }}
+    {% if lista.tipo == "free" %}
+    <span style="background:var(--verde);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">FREE</span>
+    {% else %}
+    <span style="background:var(--rosa);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">PAGA · R$ {{ lista.preco|dinheiro }}</span>
+    {% endif %}
+    {% if not lista.ativa %}
+    <span style="background:#6b7280;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">PAUSADA</span>
+    {% elif lista.esgotada %}
+    <span style="background:var(--vermelho);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-left:6px">ESGOTADA</span>
+    {% endif %}
+  </h2>
+  <p class="muted" style="margin:6px 0 10px">{% icon "calendar" tamanho=14 %} {{ lista.evento.data_inicio|date:"d/m/Y H:i" }} · {{ lista.evento.cidade }}</p>
+
+  <p style="font-size:14px;margin-bottom:4px"><strong>Vagas:</strong> {{ lista.vagas_usadas }} de {{ lista.quantidade_limite }} preenchidas (restam {{ lista.vagas_restantes }})</p>
+  <div style="background:#eef1f6;border-radius:999px;height:8px;max-width:420px;margin-bottom:14px">
+    <div style="background:var(--roxo);height:8px;border-radius:999px;width:{% widthratio lista.vagas_usadas lista.quantidade_limite 100 %}%"></div>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;margin-bottom:4px">🔗 Link de captura (divulgue esse):</p>
+  <p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+    <input readonly value="{{ request.scheme }}://{{ request.get_host }}{% url 'lista_vip_captura' lista.evento.slug %}"
+           id="link-{{ lista.id }}" style="flex:1;min-width:260px;margin:0;font-size:13px;background:#f6f7fb">
+    <button class="btn btn-sec" type="button" onclick="copiarLink({{ lista.id }})">Copiar</button>
+    <a class="btn btn-sec" href="{% url 'lista_vip_captura' lista.evento.slug %}" target="_blank">Abrir</a>
+  </p>
+
+  <p style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <form method="post" style="margin:0">
+      {% csrf_token %}
+      <input type="hidden" name="lista_id" value="{{ lista.id }}">
+      <input type="hidden" name="acao" value="alternar">
+      <button class="btn btn-sec" type="submit">{% if lista.ativa %}Pausar lista{% else %}Reativar lista{% endif %}</button>
+    </form>
+    <form method="post" style="margin:0"
+          onsubmit="return confirm('Excluir a lista VIP de {{ lista.evento.titulo }}? Só dá para excluir se estiver vazia.');">
+      {% csrf_token %}
+      <input type="hidden" name="lista_id" value="{{ lista.id }}">
+      <input type="hidden" name="acao" value="excluir">
+      <button class="btn" style="background:var(--vermelho)" type="submit">Excluir</button>
+    </form>
+  </p>
+</div>
+{% empty %}
+<div class="card">
+  <p>Você ainda não gerou nenhuma lista VIP. Crie a primeira ali em cima! ✨</p>
+</div>
+{% endfor %}
+
+<style>
+.picker-eventos { position: relative; max-width: 560px; }
+.picker-campo {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border: 1px solid var(--borda); border-radius: 10px;
+  background: #fff; font-size: 14px; cursor: pointer; text-align: left; color: var(--texto-suave);
+}
+.picker-campo.aberto { border-color: var(--roxo); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+.picker-campo .picker-seta { font-size: 16px; transition: transform .2s; }
+.picker-campo.aberto .picker-seta { transform: rotate(180deg); }
+.picker-painel {
+  display: none; margin-top: 6px; border: 1px solid var(--borda); border-radius: 10px;
+  background: #fff; box-shadow: var(--sombra-forte); max-height: 260px; overflow-y: auto;
+}
+.picker-painel.aberto { display: block; }
+.picker-painel ul { list-style: none; padding: 6px; margin: 0; }
+.picker-painel li label {
+  display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+  border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--texto);
+}
+.picker-painel li label:hover { background: #f1f5fd; }
+.picker-painel li label:has(input:checked) { background: #e4efff; color: var(--roxo-escuro); }
+.picker-painel input[type="radio"] { width: 18px; height: 18px; accent-color: var(--roxo); margin: 0; }
+.tipo-lista-opcoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.tipo-opcao {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px; margin: 0;
+  border: 1px solid var(--borda); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px;
+}
+.tipo-opcao:has(input:checked) { border-color: var(--roxo); background: #e4efff; color: var(--roxo-escuro); }
+.tipo-opcao input { accent-color: var(--roxo); margin: 0; }
+</style>
+
+<script>
+(function () {
+  var campo = document.getElementById('picker-campo');
+  var painel = document.getElementById('picker-painel');
+  var resumo = document.getElementById('picker-resumo');
+
+  function atualizarResumo() {
+    var marcado = painel.querySelector('input[type="radio"]:checked');
+    if (marcado) {
+      resumo.textContent = marcado.closest('label').textContent.trim();
+      resumo.style.color = 'var(--roxo-escuro)';
+      resumo.style.fontWeight = '700';
+    }
+  }
+  campo.addEventListener('click', function () {
+    var aberto = painel.classList.toggle('aberto');
+    campo.classList.toggle('aberto', aberto);
+    campo.setAttribute('aria-expanded', aberto);
+  });
+  painel.addEventListener('change', function () {
+    atualizarResumo();
+    painel.classList.remove('aberto');
+    campo.classList.remove('aberto');
+  });
+  document.addEventListener('click', function (e) {
+    if (!document.getElementById('picker').contains(e.target)) {
+      painel.classList.remove('aberto');
+      campo.classList.remove('aberto');
+    }
+  });
+  atualizarResumo();
+
+  // mostra/esconde o campo de preço conforme o tipo
+  var campoPreco = document.getElementById('campo-preco');
+  document.getElementById('tipo-opcoes').addEventListener('change', function (e) {
+    campoPreco.style.display = (e.target.value === 'paga') ? 'block' : 'none';
+  });
+  var tipoMarcado = document.querySelector('#tipo-opcoes input:checked');
+  if (tipoMarcado && tipoMarcado.value === 'paga') campoPreco.style.display = 'block';
+})();
+
+function copiarLink(id) {
+  var input = document.getElementById('link-' + id);
+  input.select();
+  navigator.clipboard.writeText(input.value).then(function () {
+    alert('Link copiado! Agora é só divulgar. 🚀');
+  });
+}
+</script>
+{% endblock %}
