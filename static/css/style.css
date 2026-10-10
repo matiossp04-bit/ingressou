@@ -229,3 +229,52 @@ footer.rodape { background: var(--grafite); color: #9ca3af; margin-top: 70px; pa
 .rodape a:hover { color: #fff; }
 .rodape .logo img { height: 34px; width: auto; display: block; }
 .rodape .final { max-width: 1100px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid #2a3342; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+
+/* ===== Dashboards do produtor (painel geral + dashboard do evento) ===== */
+.dash-header{position:relative;border-radius:16px;overflow:hidden;margin-bottom:20px;min-height:180px;
+  background:#1e3a8a;display:flex;align-items:flex-end}
+.dash-header img.fundo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45}
+.dash-header .conteudo-head{position:relative;padding:24px;color:#fff;width:100%;
+  background:linear-gradient(transparent,rgba(15,23,42,.75))}
+.dash-header h1{margin:0 0 6px;font-size:26px;color:#fff}
+.dash-header p{margin:0;font-size:14px;opacity:.92;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.dash-header p svg{vertical-align:-2px}
+
+.filtro-card form{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.filtro-card label{font-size:13px;margin:0;display:block}
+.filtro-card input[type=date]{min-width:170px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid var(--cinza-borda,#e5e7eb);border-radius:14px;padding:16px;
+  display:flex;gap:14px;align-items:center}
+.stat-icone{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-card .rotulo{font-size:12.5px;color:#6b7280;margin-bottom:2px}
+.stat-card .valor{font-size:20px;font-weight:800;color:#111827}
+
+.roscas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.rosca-card h2{font-size:17px;margin:0 0 16px}
+.rosca-flex{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.rosca{width:150px;height:150px;border-radius:50%;position:relative;flex-shrink:0}
+.rosca::after{content:"";position:absolute;inset:26px;background:#fff;border-radius:50%}
+.rosca .centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
+.rosca .centro strong{font-size:22px}
+.rosca .centro span{font-size:11.5px;color:#6b7280}
+.legenda{display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.legenda .item{display:flex;align-items:center;gap:9px}
+.legenda .bolinha{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legenda .detalhe{color:#6b7280;font-size:12.5px}
+
+.dupla-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.url-linha{display:flex;gap:8px;margin:10px 0 14px}
+.url-linha input{flex:1;font-size:13px;background:#f9fafb}
+.flyer-img{width:100%;border-radius:12px;border:1px solid #e5e7eb}
+.qr-img{width:180px;height:180px;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#fff}
+
+.ultimas-lista{list-style:none;margin:0;padding:0}
+.ultimas-lista li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;
+  border-bottom:1px solid #f3f4f6;font-size:13.5px;flex-wrap:wrap}
+.ultimas-lista li:last-child{border-bottom:none}
+.ultimas-lista .quem strong{display:block}
+.ultimas-lista .quem span{color:#6b7280;font-size:12.5px}
+.ultimas-lista .quando{color:#6b7280;font-size:12.5px}

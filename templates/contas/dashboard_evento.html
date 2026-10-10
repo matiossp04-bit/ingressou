@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load dinheiro icones %}
+{% block titulo %}Dashboard — {{ evento.titulo }} — Ingressou{% endblock %}
+{% block conteudo %}
+<p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
+
+{# ---- Header com banner ---- #}
+<div class="dash-header">
+  {% if evento.imagem_carrossel %}
+  <img class="fundo" src="{{ evento.imagem_carrossel.url }}" alt="">
+  {% elif evento.imagem %}
+  <img class="fundo" src="{{ evento.imagem.url }}" alt="">
+  {% endif %}
+  <div class="conteudo-head">
+    <h1>{{ evento.titulo }}</h1>
+    <p>
+      <span>{% icon "calendar" tamanho=14 %} {{ evento.data_inicio|date:"d/m/Y H:i" }}</span>
+      <span>{% icon "pin" tamanho=14 %} {{ evento.local }} — {{ evento.cidade }}</span>
+    </p>
+  </div>
+</div>
+
+{# ---- Filtro por período ---- #}
+<div class="card filtro-card" style="margin-bottom:20px">
+  <form method="get">
+    <div>
+      <label for="inicio">Data inicial</label>
+      <input type="date" id="inicio" name="inicio" value="{{ inicio }}">
+    </div>
+    <div>
+      <label for="fim">Data final</label>
+      <input type="date" id="fim" name="fim" value="{{ fim }}">
+    </div>
+    <button class="btn" type="submit">Aplicar</button>
+    {% if inicio or fim %}
+    <a class="btn btn-sec" href="{% url 'dashboard_evento' evento.id %}">Limpar</a>
+    {% endif %}
+  </form>
+</div>
+
+{# ---- 4 cards de métricas ---- #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#e0e7ff;color:#1e3a8a">{% icon "carteira" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Total vendido</div>
+      <div class="valor">R$ {{ total_vendido|dinheiro }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#ede9fe;color:#6d28d9">{% icon "ticket" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ingressos vendidos</div>
+      <div class="valor">{{ n_ingressos }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#dbeafe;color:#1d4ed8">{% icon "lista" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ticket médio por pedido</div>
+      <div class="valor">R$ {{ ticket_pedido|dinheiro }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#fee2e2;color:#b91c1c">{% icon "users" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ticket médio por ingresso</div>
+      <div class="valor">R$ {{ ticket_ingresso|dinheiro }}</div>
+    </div>
+  </div>
+</div>
+
+{# ---- Roscas: Vendas e Público ---- #}
+<div class="roscas-grid">
+  <div class="card rosca-card">
+    <h2>Vendas</h2>
+    <div class="rosca-flex">
+      <div class="rosca" style="background:conic-gradient({{ vendas_gradiente }})">
+        <div class="centro"><strong>R$ {{ total_vendido|dinheiro }}</strong><span>total</span></div>
+      </div>
+      <div class="legenda">
+        {% if vendas_rosca %}
+          {% for fatia in vendas_rosca %}
+          <div class="item">
+            <span class="bolinha" style="background:{{ fatia.cor }}"></span>
+            <span>{{ fatia.rotulo }} <span class="detalhe">— R$ {{ fatia.valor|dinheiro }} · {{ fatia.qtd }} ingresso{{ fatia.qtd|pluralize }}</span></span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="item"><span class="detalhe">Sem vendas no período.</span></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card rosca-card">
+    <h2>Público</h2>
+    <div class="rosca-flex">
+      <div class="rosca" style="background:conic-gradient({{ publico_gradiente }})">
+        <div class="centro"><strong>{{ publico_total }}</strong><span>ingressos</span></div>
+      </div>
+      <div class="legenda">
+        {% for fatia in publico_rosca %}
+        <div class="item">
+          <span class="bolinha" style="background:{{ fatia.cor }}"></span>
+          <span>{{ fatia.rotulo }} <span class="detalhe">— {{ fatia.qtd }} ingresso{{ fatia.qtd|pluralize }}</span></span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---- Últimas vendas ---- #}
+<div class="card" style="margin-bottom:20px">
+  <h2 style="font-size:17px;margin:0 0 10px">Últimas vendas</h2>
+  {% if ultimas %}
+  <ul class="ultimas-lista">
+    {% for v in ultimas %}
+    <li>
+      <div class="quem">
+        <strong>{{ v.nome }}</strong>
+        <span>{{ v.itens }} · {{ v.metodo }}</span>
+      </div>
+      <div style="text-align:right">
+        <strong>R$ {{ v.total|dinheiro }}</strong><br>
+        <span class="quando">{{ v.quando|date:"d/m/Y H:i" }}</span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted" style="margin:0">Nenhuma venda no período selecionado.</p>
+  {% endif %}
+</div>
+
+{# ---- URL + QR de divulgação ---- #}
+<div class="dupla-grid">
+  <div class="card">
+    <h2 style="font-size:17px;margin:0 0 6px">{% icon "megafone" tamanho=17 %} URL do evento</h2>
+    <p class="muted" style="font-size:13px;margin:0 0 4px">Divulgue o link da página pública de vendas:</p>
+    <div class="url-linha">
+      <input type="text" id="url-evento" value="{{ url_evento }}" readonly>
+      <button class="btn" type="button" onclick="copiarUrl(this)">Copiar URL</button>
+    </div>
+    {% if evento.imagem %}
+    <img class="flyer-img" src="{{ evento.imagem.url }}" alt="Flyer do evento">
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:17px;margin:0 0 6px">{% icon "imagem" tamanho=17 %} QRCode do evento</h2>
+    <p class="muted" style="font-size:13px;margin:0 0 12px">
+      Aponta para a página pública do evento — ideal para cartazes e divulgação impressa.
+    </p>
+    <img class="qr-img" src="data:image/png;base64,{{ qr_evento_b64 }}" alt="QR Code do evento">
+    <p style="margin:12px 0 0">
+      <a class="btn btn-sec" href="data:image/png;base64,{{ qr_evento_b64 }}" download="qrcode-{{ evento.slug }}.png">Baixar QR Code</a>
+    </p>
+  </div>
+</div>
+
+<script>
+function copiarUrl(btn) {
+  const campo = document.getElementById("url-evento");
+  campo.select();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(campo.value);
+  } else {
+    document.execCommand("copy");
+  }
+  const original = btn.textContent;
+  btn.textContent = "Copiado!";
+  setTimeout(() => { btn.textContent = original; }, 1600);
+}
+</script>
+{% endblock %}

@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from eventos.models import Evento, ListaVIP, TipoIngresso
 from painel.exports import csv_participantes
+from pedidos.models import Pedido
 from .forms import CriarContaForm, ContaPortariaForm, EditarPortariaForm, GerarListaVIPForm
 from .forms_evento import CriarEventoForm, GerenciarIngressoForm, PrimeiroIngressoForm
 from .models import Perfil
@@ -66,9 +67,18 @@ def area_produtor(request):
     )
     total_repasse = sum(e.repasse or 0 for e in eventos)
     total_vendas = sum(e.vendas or 0 for e in eventos)
+
+    # Painel geral: métricas agregadas de todos os eventos do produtor
+    pedidos = list(
+        Pedido.objects.filter(evento__produtor=produtor, status="pago")
+        .prefetch_related("itens__tipo_ingresso")
+    )
+    metricas = _metricas_vendas(pedidos)
+
     return render(request, "contas/area_produtor.html", {
         "produtor": produtor, "eventos": eventos,
         "total_repasse": total_repasse, "total_vendas": total_vendas,
+        **metricas,
     })
 
 
@@ -80,6 +90,58 @@ def _produtor_do_usuario(request):
     if not produtor:
         return None, render(request, "contas/produtor_sem_vinculo.html")
     return produtor, None
+
+
+def _metricas_vendas(pedidos):
+    """Métricas e roscas (vendas por método / público) de uma lista de pedidos pagos.
+
+    Usada tanto no dashboard do evento quanto no painel geral da área do produtor.
+    """
+    def qtd_ingressos(ps):
+        return sum(i.quantidade for p in ps for i in p.itens.all())
+
+    total_vendido = sum(p.subtotal for p in pedidos)
+    n_pedidos = len(pedidos)
+    n_ingressos = qtd_ingressos(pedidos)
+
+    # Rosca "Vendas" por método de pagamento (R$ e quantidade de ingressos)
+    metodos = [("pix", "Pix", "#111827"), ("cartao", "Cartão", "#8b9dc3"), ("gratuito", "Gratuito (lista VIP)", "#f87171")]
+    vendas_rosca = []
+    for chave, rotulo, cor in metodos:
+        ps = [p for p in pedidos if p.metodo_pagamento == chave]
+        valor = sum(p.subtotal for p in ps)
+        qtd = qtd_ingressos(ps)
+        if valor or qtd:
+            vendas_rosca.append({"rotulo": rotulo, "valor": valor, "qtd": qtd, "cor": cor})
+
+    # Rosca "Público": pagantes vs gratuitos (lista VIP free)
+    pagantes = [p for p in pedidos if p.metodo_pagamento != "gratuito"]
+    gratis = [p for p in pedidos if p.metodo_pagamento == "gratuito"]
+    publico_rosca = [
+        {"rotulo": "Pagantes", "qtd": qtd_ingressos(pagantes), "cor": "#1e3a8a"},
+        {"rotulo": "Lista VIP free", "qtd": qtd_ingressos(gratis), "cor": "#f87171"},
+    ]
+
+    def gradiente(fatias, chave_valor):
+        """Monta o conic-gradient da rosca a partir das fatias."""
+        total = sum(f[chave_valor] for f in fatias) or 1
+        partes, acum = [], 0.0
+        for f in fatias:
+            pct = float(f[chave_valor]) / float(total) * 100
+            partes.append(f"{f['cor']} {acum:.1f}% {acum + pct:.1f}%")
+            acum += pct
+        return ", ".join(partes) if partes else "#e5e7eb 0% 100%"
+
+    return {
+        "total_vendido": total_vendido,
+        "n_ingressos": n_ingressos,
+        "ticket_pedido": (total_vendido / n_pedidos) if n_pedidos else 0,
+        "ticket_ingresso": (total_vendido / n_ingressos) if n_ingressos else 0,
+        "vendas_rosca": vendas_rosca,
+        "vendas_gradiente": gradiente(vendas_rosca, "valor"),
+        "publico_rosca": publico_rosca,
+        "publico_gradiente": gradiente([f for f in publico_rosca if f["qtd"]], "qtd"),
+    }
 
 
 @login_required(login_url="/conta/entrar/")
@@ -219,6 +281,82 @@ def portaria_editar(request, perfil_id):
     return render(request, "contas/portaria_form.html", {
         "form": form, "titulo_pagina": f"Editar conta — {perfil.usuario.first_name}",
         "editando": perfil,
+    })
+
+
+@login_required(login_url="/conta/entrar/")
+def dashboard_evento(request, evento_id):
+    """Dashboard do evento (estilo Clube do Ingresso): total vendido, ingressos,
+    tickets médios, roscas de vendas/público, URL e QR de divulgação.
+
+    Filtro opcional por período: ?inicio=AAAA-MM-DD&fim=AAAA-MM-DD (sobre pago_em).
+    """
+    produtor, resposta = _produtor_do_usuario(request)
+    if not produtor:
+        return resposta
+    evento = get_object_or_404(Evento, pk=evento_id, produtor=produtor)
+
+    pedidos = (
+        Pedido.objects.filter(evento=evento, status="pago")
+        .prefetch_related("itens__tipo_ingresso")
+        .order_by("-pago_em")
+    )
+    inicio, fim = request.GET.get("inicio", ""), request.GET.get("fim", "")
+
+    from datetime import datetime
+
+    def data_valida(valor):
+        try:
+            datetime.strptime(valor, "%Y-%m-%d")
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    if inicio and data_valida(inicio):
+        pedidos = pedidos.filter(pago_em__date__gte=inicio)
+    else:
+        inicio = ""
+    if fim and data_valida(fim):
+        pedidos = pedidos.filter(pago_em__date__lte=fim)
+    else:
+        fim = ""
+    pedidos = list(pedidos)
+    metricas = _metricas_vendas(pedidos)
+
+    ultimas = [
+        {
+            "nome": p.comprador_nome,
+            "itens": ", ".join(f"{i.quantidade}x {i.tipo_ingresso.nome}" for i in p.itens.all()),
+            "total": p.total,
+            "quando": p.pago_em,
+            "metodo": p.get_metodo_pagamento_display(),
+        }
+        for p in pedidos[:8]
+    ]
+
+    # QR Code de divulgação do evento (aponta para a página pública)
+    import base64
+    import io
+
+    import qrcode
+
+    from django.urls import reverse
+
+    url_evento = request.build_absolute_uri(reverse("evento_detalhe", args=[evento.slug]))
+    img = qrcode.make(url_evento, box_size=8, border=2)
+    buf = io.BytesIO()
+    img.save(buf, "PNG")
+    qr_evento_b64 = base64.b64encode(buf.getvalue()).decode()
+
+    return render(request, "contas/dashboard_evento.html", {
+        "evento": evento,
+        "inicio": inicio, "fim": fim,
+        **metricas,
+        "vendas_total_qtd": metricas["n_ingressos"],
+        "publico_total": metricas["n_ingressos"],
+        "ultimas": ultimas,
+        "url_evento": url_evento,
+        "qr_evento_b64": qr_evento_b64,
     })
 
 

@@ -28,6 +28,82 @@
   </p>
 </div>
 
+{# ---- Painel geral: métricas de todos os eventos ---- #}
+<h2 style="font-size:19px;margin:26px 0 14px">{% icon "lista" tamanho=19 %} Visão geral das vendas</h2>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#e0e7ff;color:#1e3a8a">{% icon "carteira" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Total vendido</div>
+      <div class="valor">R$ {{ total_vendido|dinheiro }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#ede9fe;color:#6d28d9">{% icon "ticket" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ingressos vendidos</div>
+      <div class="valor">{{ n_ingressos }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#dbeafe;color:#1d4ed8">{% icon "lista" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ticket médio por pedido</div>
+      <div class="valor">R$ {{ ticket_pedido|dinheiro }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icone" style="background:#fee2e2;color:#b91c1c">{% icon "users" tamanho=22 %}</div>
+    <div>
+      <div class="rotulo">Ticket médio por ingresso</div>
+      <div class="valor">R$ {{ ticket_ingresso|dinheiro }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="roscas-grid">
+  <div class="card rosca-card">
+    <h2>Vendas por método</h2>
+    <div class="rosca-flex">
+      <div class="rosca" style="background:conic-gradient({{ vendas_gradiente }})">
+        <div class="centro"><strong>R$ {{ total_vendido|dinheiro }}</strong><span>total</span></div>
+      </div>
+      <div class="legenda">
+        {% if vendas_rosca %}
+          {% for fatia in vendas_rosca %}
+          <div class="item">
+            <span class="bolinha" style="background:{{ fatia.cor }}"></span>
+            <span>{{ fatia.rotulo }} <span class="detalhe">— R$ {{ fatia.valor|dinheiro }} · {{ fatia.qtd }} ingresso{{ fatia.qtd|pluralize }}</span></span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="item"><span class="detalhe">Sem vendas ainda.</span></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card rosca-card">
+    <h2>Público</h2>
+    <div class="rosca-flex">
+      <div class="rosca" style="background:conic-gradient({{ publico_gradiente }})">
+        <div class="centro"><strong>{{ n_ingressos }}</strong><span>ingressos</span></div>
+      </div>
+      <div class="legenda">
+        {% for fatia in publico_rosca %}
+        <div class="item">
+          <span class="bolinha" style="background:{{ fatia.cor }}"></span>
+          <span>{{ fatia.rotulo }} <span class="detalhe">— {{ fatia.qtd }} ingresso{{ fatia.qtd|pluralize }}</span></span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 style="font-size:19px;margin:6px 0 14px">{% icon "mic" tamanho=19 %} Meus eventos</h2>
+
 {% for evento in eventos %}
 <div class="card">
   <h2 style="font-size:18px">{{ evento.titulo }}
@@ -54,6 +130,7 @@
     </tr>
   </table>
   <p style="margin-top:12px">
+    <a class="btn btn-sec" href="{% url 'dashboard_evento' evento.id %}">{% icon "lista" tamanho=15 %} Dashboard</a>
     <a class="btn btn-sec" href="{% url 'gerenciar_ingressos' evento.id %}">{% icon "ticket" tamanho=15 %} Gerenciar ingressos e lotes</a>
   </p>
 </div>
