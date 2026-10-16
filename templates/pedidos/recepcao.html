@@ -46,7 +46,7 @@
     box.style.display = 'block';
     if (status === 'ok') {
       box.style.background = 'var(--verde)';
-      titulo.textContent = 'ENTRADA LIBERADA';
+      titulo.textContent = dados.meia ? 'ENTRADA LIBERADA — MEIA: PEDIR DOCUMENTO' : 'ENTRADA LIBERADA';
       detalhe.textContent = dados.tipo + ' · ' + dados.comprador + ' · ' + dados.evento;
       contador++;
       document.getElementById('contador').textContent = contador;

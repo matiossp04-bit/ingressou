@@ -12,6 +12,7 @@ urlpatterns = [
     path("pedido/<uuid:uuid>/confirmado/", views.pedido_confirmado, name="pedido_confirmado"),
     path("meus-ingressos/", views.meus_ingressos, name="meus_ingressos"),
     path("pedido/<uuid:uuid>/reenviar/", views.reenviar_ingressos, name="reenviar_ingressos"),
+    path("pedido/<uuid:uuid>/reembolso/", views.solicitar_reembolso, name="solicitar_reembolso"),
     path("validar/<uuid:codigo>/", views.validar_ingresso, name="validar_ingresso"),
     path("recepcao/", views.recepcao, name="recepcao"),
     path("recepcao/bipar/", views.bipar_ingresso, name="bipar_ingresso"),

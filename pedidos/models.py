@@ -17,6 +17,8 @@ class Pedido(models.Model):
     STATUS = [
         ("pendente", "Pendente"),
         ("pago", "Pago"),
+        ("reembolso_solicitado", "Reembolso solicitado"),
+        ("reembolsado", "Reembolsado"),
         ("cancelado", "Cancelado"),
         ("expirado", "Expirado"),
     ]
@@ -33,7 +35,7 @@ class Pedido(models.Model):
     comprador_email = models.EmailField()
     comprador_cpf = models.CharField(max_length=14)
     comprador_whatsapp = models.CharField(max_length=20, blank=True)
-    status = models.CharField(max_length=10, choices=STATUS, default="pendente")
+    status = models.CharField(max_length=22, choices=STATUS, default="pendente")
     metodo_pagamento = models.CharField(max_length=10, choices=METODOS, default="", blank=True)
 
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0,
@@ -94,6 +96,22 @@ class Pedido(models.Model):
     @property
     def expirado(self):
         return self.status == "pendente" and self.expira_em and timezone.now() > self.expira_em
+
+    @property
+    def pode_pedir_reembolso(self):
+        """Comprador pode pedir reembolso enquanto o evento não aconteceu."""
+        return self.status == "pago" and self.evento.data_inicio > timezone.now()
+
+    def concluir_reembolso(self):
+        """Finaliza o reembolso: invalida os ingressos e devolve o estoque.
+        Os dashboards filtram status='pago', então o pedido sai das contas sozinho."""
+        for item in self.itens.all():
+            tipo = item.tipo_ingresso
+            tipo.quantidade_vendida = max(tipo.quantidade_vendida - item.quantidade, 0)
+            tipo.save(update_fields=["quantidade_vendida"])
+            item.ingressos.all().delete()  # QR codes deixam de existir — não bipam mais
+        self.status = "reembolsado"
+        self.save(update_fields=["status"])
 
     def gerar_ingressos(self):
         for item in self.itens.all():

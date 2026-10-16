@@ -261,13 +261,44 @@ def meus_ingressos(request):
         email = request.POST.get("email", "").strip()
         cpf = request.POST.get("cpf", "").strip()
         pedidos = (
-            Pedido.objects.filter(comprador_email__iexact=email, comprador_cpf=cpf, status="pago")
+            Pedido.objects.filter(
+                comprador_email__iexact=email, comprador_cpf=cpf,
+                status__in=("pago", "reembolso_solicitado"),
+            )
             .select_related("evento")
             .prefetch_related("itens__ingressos", "itens__tipo_ingresso")
         )
         if not pedidos.exists():
             messages.warning(request, "Nenhum pedido pago encontrado para esse e-mail e CPF.")
     return render(request, "pedidos/meus_ingressos.html", {"pedidos": pedidos})
+
+
+@require_POST
+def solicitar_reembolso(request, uuid):
+    """Comprador pede reembolso (com e-mail + CPF da compra, como no 'Meus ingressos').
+
+    O pedido vai para 'reembolso_solicitado' e o ADMIN estorna no Mercado Pago
+    pelo painel. Só vale para eventos que ainda não aconteceram.
+    """
+    pedido = get_object_or_404(Pedido, uuid=uuid)
+    email = request.POST.get("email", "").strip()
+    cpf = request.POST.get("cpf", "").strip()
+
+    if pedido.comprador_email.lower() != email.lower() or pedido.comprador_cpf != cpf:
+        messages.error(request, "E-mail e CPF não conferem com esse pedido.")
+        return redirect("meus_ingressos")
+    if not pedido.pode_pedir_reembolso:
+        messages.warning(request, "Esse pedido não pode ser reembolsado (evento já realizado ou pedido não pago).")
+        return redirect("meus_ingressos")
+
+    pedido.status = "reembolso_solicitado"
+    pedido.save(update_fields=["status"])
+    messages.success(
+        request,
+        "Reembolso solicitado! Nossa equipe vai analisar e estornar pelo Mercado Pago. "
+        "Você recebe um e-mail quando concluir. 💙",
+    )
+    return redirect("meus_ingressos")
 
 
 @require_POST
@@ -343,6 +374,7 @@ def bipar_ingresso(request):
             "tipo": ingresso.item.tipo_ingresso.nome,
             "evento": ingresso.item.pedido.evento.titulo,
             "comprador": ingresso.item.pedido.comprador_nome,
+            "meia": ingresso.item.tipo_ingresso.meia_entrada,
         }
         if ingresso.validado:
             dados["status"] = "repetido"

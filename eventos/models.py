@@ -212,6 +212,8 @@ class TipoIngresso(models.Model):
     quantidade_total = models.PositiveIntegerField()
     quantidade_vendida = models.PositiveIntegerField(default=0)
     max_por_pedido = models.PositiveIntegerField("Máximo por pedido", default=10)
+    meia_entrada = models.BooleanField("Meia-entrada", default=False,
+                                       help_text="Marque para ingressos de meia-entrada — a portaria pedirá documento comprobatório (estudante, idoso, PCD etc.).")
     ordem = models.PositiveIntegerField("Ordem do lote", default=0,
                                         help_text="0 = sempre à venda. 1, 2, 3... = abre quando o lote anterior esgotar.")
     ativo = models.BooleanField(default=True)

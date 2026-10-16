@@ -52,3 +52,25 @@ def enviar_ingressos(pedido):
     except Exception:
         logger.exception("Falha ao enviar ingressos do pedido %s", pedido.uuid)
         return False
+
+
+def enviar_aviso_reembolso(pedido):
+    """Avisa o comprador que o reembolso foi concluído (best-effort, nunca quebra o fluxo)."""
+    try:
+        assunto = f"Reembolso concluído — {pedido.evento.titulo}"
+        html = render_to_string("emails/reembolso.html", {"pedido": pedido})
+        texto = (
+            f"Olá {pedido.comprador_nome}, o reembolso do seu pedido do evento "
+            f"'{pedido.evento.titulo}' foi concluído. Valor: R$ {pedido.total}. "
+            "O Mercado Pago devolve pela mesma forma de pagamento (Pix ou cartão)."
+        )
+        email = EmailMultiAlternatives(
+            assunto, texto, settings.DEFAULT_FROM_EMAIL, [pedido.comprador_email],
+        )
+        email.attach_alternative(html, "text/html")
+        email.send()
+        logger.info("Aviso de reembolso enviado para %s (pedido %s)", pedido.comprador_email, pedido.uuid)
+        return True
+    except Exception:
+        logger.exception("Falha ao avisar reembolso do pedido %s", pedido.uuid)
+        return False

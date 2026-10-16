@@ -77,6 +77,11 @@ class PrimeiroIngressoForm(forms.Form):
     preco = forms.DecimalField(label="Seu preço (valor exato que você recebe)",
                                min_value=1, max_digits=10, decimal_places=2)
     quantidade_total = forms.IntegerField(label="Quantidade disponível", min_value=1)
+    meia_entrada = forms.BooleanField(
+        label="É meia-entrada",
+        required=False,
+        help_text="A portaria pedirá documento comprobatório (estudante, idoso, PCD etc.).",
+    )
     lote = forms.BooleanField(
         label="Abrir só quando o lote anterior esgotar",
         required=False,
@@ -98,4 +103,9 @@ class GerenciarIngressoForm(forms.Form):
     preco = forms.DecimalField(label="Preço (valor do seu repasse)",
                                min_value=1, max_digits=10, decimal_places=2)
     quantidade_total = forms.IntegerField(label="Quantidade", min_value=1)
+    meia_entrada = forms.BooleanField(
+        label="É meia-entrada",
+        required=False,
+        help_text="A portaria pedirá documento comprobatório na entrada.",
+    )
     lote = forms.BooleanField(label="Abrir só quando o lote anterior esgotar", required=False)

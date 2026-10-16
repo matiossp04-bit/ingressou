@@ -1,0 +1,46 @@
+{% load dinheiro %}<!DOCTYPE html>
+<html lang="pt-BR">
+<body style="font-family:system-ui,sans-serif;background:#f6f6fa;padding:24px">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+    <div style="background:linear-gradient(90deg,#111827,#1f2937);color:#fff;padding:24px;text-align:center">
+      <div style="font-size:24px;font-weight:800">Ingressou<span style="color:#3b82f6">.</span></div>
+    </div>
+    <div style="padding:28px">
+      <h1 style="font-size:22px;margin:0 0 8px">Reembolso concluído ✅</h1>
+      <p style="color:#6b6b80;font-size:14px;margin:0 0 20px">
+        Olá {{ pedido.comprador_nome }}, o reembolso do seu pedido foi concluído:
+      </p>
+      <div style="background:#f6f6fa;border-radius:10px;padding:16px;margin-bottom:20px">
+        <strong style="font-size:16px">{{ pedido.evento.titulo }}</strong><br>
+        <span style="color:#6b6b80;font-size:14px">
+          📅 {{ pedido.evento.data_inicio|date:"d/m/Y \à\s H:i" }}<br>
+          📍 {{ pedido.evento.local }} — {{ pedido.evento.cidade }}
+        </span>
+      </div>
+      <table style="width:100%;font-size:14px;margin-bottom:20px">
+        {% for item in pedido.itens.all %}
+        <tr>
+          <td>{{ item.quantidade }}x {{ item.tipo_ingresso.nome }}</td>
+          <td style="text-align:right">R$ {{ item.total|dinheiro }}</td>
+        </tr>
+        {% endfor %}
+        <tr style="border-top:2px solid #3b82f6;font-weight:700">
+          <td style="padding-top:8px">Valor reembolsado</td>
+          <td style="text-align:right;padding-top:8px">R$ {{ pedido.total|dinheiro }}</td>
+        </tr>
+      </table>
+      <p style="font-size:14px">
+        O Mercado Pago devolve o valor pela <strong>mesma forma de pagamento</strong>:
+        Pix cai em poucos minutos; cartão aparece na fatura em até 2 faturas,
+        conforme a operadora.
+      </p>
+      <p style="font-size:14px;color:#6b6b80">
+        Os ingressos deste pedido foram cancelados e não são mais válidos para entrada.
+      </p>
+      <p style="color:#9a9ab0;font-size:12px;margin-top:24px;text-align:center">
+        Pedido {{ pedido.uuid }} · Ingressou — Comprou, ingressou!
+      </p>
+    </div>
+  </div>
+</body>
+</html>

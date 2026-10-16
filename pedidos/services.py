@@ -77,3 +77,23 @@ def consultar_pagamento(payment_id):
     sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
     resposta = sdk.payment().get(payment_id)
     return resposta.get("response")
+
+
+def estornar_pagamento(payment_id):
+    """Estorna (reembolsa) um pagamento no Mercado Pago.
+
+    Retorna (True, detalhes) em caso de sucesso ou (False, mensagem_de_erro).
+    Pix e cartão são estornados pela mesma chamada; o MP devolve ao comprador
+    pela mesma forma de pagamento.
+    """
+    if not mercado_pago_ativo():
+        return False, "Mercado Pago não configurado (MP_ACCESS_TOKEN ausente)."
+
+    import mercadopago
+
+    sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
+    resposta = sdk.refund().create(payment_id)
+    corpo = resposta.get("response") or {}
+    if resposta.get("status") in (200, 201) and corpo.get("status") in ("approved", "pending"):
+        return True, corpo
+    return False, corpo.get("message") or f"HTTP {resposta.get('status')}"

@@ -15,7 +15,7 @@
     <tr><th>Ingresso</th><th class="num">Qtd.</th><th class="num">Valor unit.</th><th class="num">Total</th></tr>
     {% for linha in linhas %}
     <tr>
-      <td>{{ linha.tipo.nome }}</td>
+      <td>{{ linha.tipo.nome }}{% if linha.tipo.meia_entrada %} <span class="muted" style="font-size:12px">(meia-entrada)</span>{% endif %}</td>
       <td class="num">{{ linha.quantidade }}</td>
       <td class="num">R$ {{ linha.tipo.preco|dinheiro }}</td>
       <td class="num">R$ {{ linha.total|dinheiro }}</td>

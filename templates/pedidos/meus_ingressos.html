@@ -28,7 +28,11 @@
       {% for item in pedido.itens.all %}
         {% for ingresso in item.ingressos.all %}
         <div style="text-align:center;border:1px solid var(--borda);border-radius:10px;padding:14px">
-          <strong>{{ item.tipo_ingresso.nome }}</strong><br>
+          <strong>{{ item.tipo_ingresso.nome }}</strong>
+          {% if item.tipo_ingresso.meia_entrada %}
+          <div style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block;margin-top:4px">MEIA-ENTRADA · levar documento</div>
+          {% endif %}
+          <br>
           {% if ingresso.qrcode %}
           <img src="{{ ingresso.qrcode.url }}" alt="QR code" width="150" style="margin:8px auto">
           {% endif %}
@@ -41,12 +45,23 @@
         {% endfor %}
       {% endfor %}
     </div>
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <a class="btn btn-sec" href="{% url 'pedido_confirmado' pedido.uuid %}">Ver pedido completo</a>
       <form method="post" action="{% url 'reenviar_ingressos' pedido.uuid %}">
         {% csrf_token %}
         <button class="btn btn-sec" type="submit">{% icon "mail" tamanho=15 %} Reenviar por e-mail</button>
       </form>
+      {% if pedido.status == "reembolso_solicitado" %}
+      <span style="background:#fef3c7;color:#92400e;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px">Reembolso solicitado — em análise</span>
+      {% elif pedido.pode_pedir_reembolso %}
+      <form method="post" action="{% url 'solicitar_reembolso' pedido.uuid %}"
+            onsubmit="return confirm('Confirmar pedido de reembolso? Os ingressos serão cancelados quando o estorno for concluído.')">
+        {% csrf_token %}
+        <input type="hidden" name="email" value="{{ request.POST.email }}">
+        <input type="hidden" name="cpf" value="{{ request.POST.cpf }}">
+        <button class="btn btn-sec" type="submit" style="color:var(--vermelho)">Solicitar reembolso</button>
+      </form>
+      {% endif %}
     </div>
   </div>
   {% endfor %}

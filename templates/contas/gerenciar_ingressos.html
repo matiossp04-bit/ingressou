@@ -61,6 +61,9 @@
         <input name="quantidade_total" type="number" min="{{ tipo.quantidade_vendida|add:1 }}" value="{{ tipo.quantidade_total }}" required>
       </div>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600">
+      <input type="checkbox" name="meia_entrada" {% if tipo.meia_entrada %}checked{% endif %} style="width:auto;margin:0"> É meia-entrada (portaria pede documento)
+    </label>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
       <button class="btn" type="submit" name="acao" value="editar">Salvar alterações</button>
@@ -95,6 +98,9 @@
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600">
+      {{ form.meia_entrada }} É meia-entrada (portaria pede documento)
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600">
       {{ form.lote }} Abrir só quando o lote anterior esgotar
     </label>
     <p class="muted" style="margin-top:4px">Se marcar, ele entra no fim da fila de lotes deste evento.</p>

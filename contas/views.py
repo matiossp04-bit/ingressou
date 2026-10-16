@@ -200,7 +200,8 @@ def gerenciar_ingressos(request, evento_id):
                 )
             else:
                 tipo.nome, tipo.preco, tipo.quantidade_total = nome, preco, quantidade
-                tipo.save(update_fields=["nome", "preco", "quantidade_total"])
+                tipo.meia_entrada = request.POST.get("meia_entrada") == "on"
+                tipo.save(update_fields=["nome", "preco", "quantidade_total", "meia_entrada"])
                 messages.success(request, f"'{nome}' atualizado!")
         return redirect("gerenciar_ingressos", evento_id=evento.id)
 

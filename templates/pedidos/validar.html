@@ -5,7 +5,13 @@
 <div class="card" style="text-align:center">
   <h1>Validação de ingresso</h1>
   <p style="margin:12px 0">
-    <strong>{{ ingresso.item.tipo_ingresso.nome }}</strong><br>
+    <strong>{{ ingresso.item.tipo_ingresso.nome }}</strong>
+    {% if ingresso.item.tipo_ingresso.meia_entrada %}
+    <div style="background:#fef3c7;color:#92400e;font-weight:700;padding:10px 14px;border-radius:10px;margin:10px 0">
+      {% icon "alerta" tamanho=15 %} MEIA-ENTRADA — pedir documento comprobatório
+    </div>
+    {% endif %}
+    <br>
     {{ ingresso.item.pedido.evento.titulo }}<br>
     Comprador: {{ ingresso.item.pedido.comprador_nome }}<br>
     <span class="muted">Código: {{ ingresso.codigo }}</span>

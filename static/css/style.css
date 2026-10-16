@@ -278,3 +278,22 @@ footer.rodape { background: var(--grafite); color: #9ca3af; margin-top: 70px; pa
 .ultimas-lista .quem strong{display:block}
 .ultimas-lista .quem span{color:#6b7280;font-size:12.5px}
 .ultimas-lista .quando{color:#6b7280;font-size:12.5px}
+
+
+/* ===== Header no celular: logo em cima, menu em linha rolável embaixo ===== */
+@media (max-width: 700px) {
+  header.topo { height: auto; flex-wrap: wrap; padding: 10px 16px 0; gap: 4px; }
+  .topo .logo img { height: 34px; }
+  .topo nav { display: flex; width: 100%; overflow-x: auto; padding: 6px 0 10px; gap: 18px; -webkit-overflow-scrolling: touch; }
+  .topo nav a { margin-left: 0; white-space: nowrap; font-size: 13.5px; flex-shrink: 0; }
+}
+
+
+/* ===== Busca no celular: não deixar vazar da tela ===== */
+@media (max-width: 700px) {
+  html, body { overflow-x: hidden; overflow-x: clip; }
+  .pos-hero { padding: 0 12px; }
+  .busca { max-width: 100%; }
+  .busca input { min-width: 0; padding: 12px 14px; font-size: 15px; }
+  .busca button { padding: 12px 16px; font-size: 14px; flex-shrink: 0; }
+}
