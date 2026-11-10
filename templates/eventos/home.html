@@ -64,20 +64,51 @@
   var box = document.getElementById('carrossel');
   if (!box) return;
   var trilho = box.querySelector('.trilho');
-  var slides = Array.prototype.slice.call(box.querySelectorAll('.slide'));
   var pontos = Array.prototype.slice.call(box.querySelectorAll('.ponto'));
-  var n = slides.length, idx = 0, timer = null;
+  var originais = Array.prototype.slice.call(box.querySelectorAll('.slide'));
+  var n = originais.length;
+  if (!n) return;
 
-  function largura() {
-    return slides[0].offsetWidth + 24; // slide + margem
+  // Clona os slides no final: assim a passagem do último pro primeiro
+  // continua andando pra frente (loop infinito, sem "rebobinar")
+  originais.forEach(function (s) { trilho.appendChild(s.cloneNode(true)); });
+  var slides = Array.prototype.slice.call(box.querySelectorAll('.slide'));
+
+  var idx = 0, timer = null;
+
+  function largura() { return slides[0].offsetWidth + 24; } // slide + margem
+  function centro(i) { return i * largura() - (box.offsetWidth - slides[0].offsetWidth) / 2; }
+  function ativa(k) { return ((k % n) + n) % n; } // índice no mundo real (0..n-1)
+
+  function aplicar(animar) {
+    if (animar) {
+      trilho.style.transition = '';
+      void trilho.offsetWidth; // garante que a transição dispare
+    } else {
+      trilho.style.transition = 'none';
+    }
+    trilho.style.transform = 'translateX(' + (-centro(idx)) + 'px)';
+    var at = ativa(idx);
+    slides.forEach(function (s, k) { s.classList.toggle('ativo', ativa(k) === at); });
+    pontos.forEach(function (p, k) { p.classList.toggle('ativo', k === at); });
   }
-  function mostrar(i) {
-    idx = ((i % n) + n) % n;
-    var desloc = idx * largura() - (box.offsetWidth - slides[0].offsetWidth) / 2;
-    trilho.style.transform = 'translateX(' + (-desloc) + 'px)';
-    slides.forEach(function (s, k) { s.classList.toggle('ativo', k === idx); });
-    pontos.forEach(function (p, k) { p.classList.toggle('ativo', k === idx); });
+  function mostrar(i) { idx = i; aplicar(true); }
+
+  // Fim da animação: volta pro slide "de verdade" sem transição (snap invisível)
+  trilho.addEventListener('transitionend', function (e) {
+    if (e.propertyName !== 'transform') return;
+    if (idx >= n) { idx -= n; aplicar(false); }
+    else if (idx < 0) { idx += n; aplicar(false); }
+  });
+
+  // Caminho mais curto entre dois slides (não dá a volta comprida à toa)
+  function passoCurto(de, para) {
+    var d = para - de;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    return d;
   }
+
   function auto() {
     clearInterval(timer);
     timer = setInterval(function () { mostrar(idx + 1); }, 4000); // 4 segundos
@@ -86,16 +117,20 @@
   box.querySelector('.esq').addEventListener('click', function () { mostrar(idx - 1); auto(); });
   box.querySelector('.dir').addEventListener('click', function () { mostrar(idx + 1); auto(); });
   pontos.forEach(function (p, k) {
-    p.addEventListener('click', function () { mostrar(k); auto(); });
+    p.addEventListener('click', function () { mostrar(idx + passoCurto(ativa(idx), k)); auto(); });
   });
   slides.forEach(function (s, k) {
     s.addEventListener('click', function (e) {
-      if (k !== idx) { e.preventDefault(); mostrar(k); auto(); } // clique na lateral só centraliza
+      if (k !== idx) { // clique no slide lateral só centraliza
+        e.preventDefault();
+        mostrar(idx + passoCurto(ativa(idx), ativa(k)));
+        auto();
+      }
     });
   });
   box.addEventListener('mouseenter', function () { clearInterval(timer); }); // pausa com o mouse em cima
   box.addEventListener('mouseleave', auto);
-  window.addEventListener('resize', function () { mostrar(idx); });
+  window.addEventListener('resize', function () { aplicar(false); });
 
   mostrar(0);
   auto();
