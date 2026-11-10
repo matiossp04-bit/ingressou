@@ -9,6 +9,15 @@
     <a class="slide" href="{% url 'home' %}#categorias" data-promo="1">
       <img src="{% static 'img/banner-ultimolote.jpg' %}" alt="ÚltimoLote — Corre que é o último lote!">
     </a>
+    <a class="slide" href="{% url 'home' %}?categoria=festa" data-promo="2">
+      <img src="{% static 'img/banner-festa.jpg' %}" alt="ÚltimoLote — A festa é agora!">
+    </a>
+    <a class="slide" href="{% url 'home' %}?categoria=teatro" data-promo="3">
+      <img src="{% static 'img/banner-teatro.jpg' %}" alt="ÚltimoLote — Ria com a gente!">
+    </a>
+    <a class="slide" href="{% url 'home' %}?categoria=esporte" data-promo="4">
+      <img src="{% static 'img/banner-esporte.jpg' %}" alt="ÚltimoLote — Vibra com a gente!">
+    </a>
     {% for evento in destaques %}
     <a class="slide" href="{% url 'evento_detalhe' evento.slug %}" data-i="{{ forloop.counter0 }}">
       {% if evento.imagem_carrossel %}
@@ -27,6 +36,9 @@
   <button class="seta dir" aria-label="Próximo" type="button">›</button>
   <div class="pontos">
     <button class="ponto" data-i="promo" aria-label="Banner ÚltimoLote" type="button"></button>
+    <button class="ponto" data-i="promo2" aria-label="Banner Festas" type="button"></button>
+    <button class="ponto" data-i="promo3" aria-label="Banner Teatros" type="button"></button>
+    <button class="ponto" data-i="promo4" aria-label="Banner Esportes" type="button"></button>
     {% for evento in destaques %}
     <button class="ponto" data-i="{{ forloop.counter0 }}" aria-label="Ir para {{ evento.titulo }}" type="button"></button>
     {% endfor %}
@@ -40,7 +52,7 @@
     <button type="submit">Buscar</button>
   </form>
 </div>
-<div class="categorias">
+<div class="categorias" id="categorias">
   <a class="chip {% if not categoria_ativa %}ativo{% endif %}" href="{% url 'home' %}">{% icon "sparkles" tamanho=15 %} Todos</a>
   {% for cat in categorias %}
   <a class="chip {% if categoria_ativa == cat.valor %}ativo{% endif %}" href="?categoria={{ cat.valor }}">{% icon cat.icone tamanho=15 %} {{ cat.nome }}</a>
