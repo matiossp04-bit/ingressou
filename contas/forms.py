@@ -186,7 +186,7 @@ class GerarListaVIPForm(forms.Form):
     preco = forms.DecimalField(
         label="Valor da vaga (só lista paga)", required=False, min_value=1,
         max_digits=10, decimal_places=2,
-        help_text="Você recebe exatamente esse valor por vaga. A taxa do Ingressou é somada no checkout.",
+        help_text="Você recebe exatamente esse valor por vaga. A taxa do ÚltimoLote é somada no checkout.",
     )
     quantidade_limite = forms.IntegerField(
         label="Quantidade de vagas da lista", min_value=1,

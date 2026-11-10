@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Ingressou — Seus eventos, seus ingressos{% endblock %}</title>
+  <title>{% block titulo %}ÚltimoLote — Corre que é o último lote!{% endblock %}</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   {% block metas %}
-  <meta name="description" content="Compre e venda ingressos para os melhores eventos. Comprou, ingressou!">
-  <meta property="og:site_name" content="Ingressou">
-  <meta property="og:title" content="Ingressou — Seus eventos, seus ingressos">
-  <meta property="og:description" content="Compre e venda ingressos para os melhores eventos. Comprou, ingressou!">
+  <meta name="description" content="Ingressos para os melhores shows, festas e eventos. Corre que é o último lote!">
+  <meta property="og:site_name" content="ÚltimoLote">
+  <meta property="og:title" content="ÚltimoLote — Corre que é o último lote!">
+  <meta property="og:description" content="Ingressos para os melhores shows, festas e eventos. Corre que é o último lote!">
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta name="twitter:card" content="summary_large_image">
@@ -19,7 +21,7 @@
 </head>
 <body>
   <header class="topo">
-    <a class="logo" href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" alt="Ingressou"></a>
+    <a class="logo" href="{% url 'home' %}"><img src="{% static 'img/logo-icone.png' %}" alt="ÚltimoLote"></a>
     <nav>
       <a href="{% url 'home' %}">Eventos</a>
       <a href="{% url 'meus_ingressos' %}">Meus ingressos</a>
@@ -44,8 +46,8 @@
   <footer class="rodape">
     <div class="colunas">
       <div>
-        <div class="logo"><img src="{% static 'img/logo.png' %}" alt="Ingressou"></div>
-        <p style="font-size:14px;margin-top:10px">A forma mais simples de comprar e vender ingressos. Comprou, ingressou!</p>
+        <div class="logo"><img src="{% static 'img/logo-icone.png' %}" alt="ÚltimoLote"></div>
+        <p style="font-size:14px;margin-top:10px">A forma mais simples de comprar ingressos para os melhores eventos. Corre que é o último lote!</p>
       </div>
       <div>
         <h4>Eventos</h4>
@@ -67,7 +69,7 @@
       </div>
     </div>
     <div class="final">
-      <span>© Ingressou — Todos os direitos reservados</span>
+      <span>© ÚltimoLote — Todos os direitos reservados</span>
       <span>Pagamento seguro via Mercado Pago</span>
     </div>
   </footer>

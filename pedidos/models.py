@@ -46,7 +46,7 @@ class Pedido(models.Model):
     custo_gateway = models.DecimalField(max_digits=10, decimal_places=2, default=0,
                                         help_text="Taxa do Mercado Pago, calculada quando o pagamento é confirmado.")
     imposto = models.DecimalField(max_digits=10, decimal_places=2, default=0,
-                                  help_text="Imposto do Ingressou sobre a taxa da plataforma.")
+                                  help_text="Imposto do ÚltimoLote sobre a taxa da plataforma.")
 
     mp_payment_id = models.CharField(max_length=50, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
@@ -90,7 +90,7 @@ class Pedido(models.Model):
 
     @property
     def lucro_plataforma(self):
-        """Quanto sobra para o Ingressou: taxa - custo do gateway - imposto."""
+        """Quanto sobra para o ÚltimoLote: taxa - custo do gateway - imposto."""
         return self.taxa_plataforma - self.custo_gateway - self.imposto
 
     @property

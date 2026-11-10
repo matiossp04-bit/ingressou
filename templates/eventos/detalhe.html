@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load dinheiro icones %}
-{% block titulo %}{{ evento.titulo }} — Ingressou{% endblock %}
+{% block titulo %}{{ evento.titulo }} — ÚltimoLote{% endblock %}
 
 {% block metas %}
-<meta name="description" content="{{ evento.data_inicio|date:'d/m/Y H:i' }} · {{ evento.local }} — {{ evento.cidade }}. Garanta seu ingresso no Ingressou!">
-<meta property="og:site_name" content="Ingressou">
+<meta name="description" content="{{ evento.data_inicio|date:'d/m/Y H:i' }} · {{ evento.local }} — {{ evento.cidade }}. Garanta seu ingresso no ÚltimoLote!">
+<meta property="og:site_name" content="ÚltimoLote">
 <meta property="og:title" content="{{ evento.titulo }}">
 <meta property="og:description" content="{{ evento.data_inicio|date:'d/m/Y H:i' }} · {{ evento.local }} — {{ evento.cidade }}. Garanta seu ingresso!">
 <meta property="og:type" content="website">

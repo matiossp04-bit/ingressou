@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load dinheiro icones l10n %}
-{% block titulo %}Ingressos — {{ evento.titulo }} — Ingressou{% endblock %}
+{% block titulo %}Ingressos — {{ evento.titulo }} — ÚltimoLote{% endblock %}
 {% block conteudo %}
 <p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
 <h1 style="margin-bottom:4px">{% icon "ticket" tamanho=26 %} Ingressos — {{ evento.titulo }}</h1>

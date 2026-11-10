@@ -38,7 +38,7 @@ def criar_conta(request):
         usuario = form.salvar()
         login(request, usuario)
         if usuario.perfil.eh_produtor:
-            messages.success(request, "Conta de produtor criada! Solicite o cadastro do seu primeiro evento à equipe Ingressou.")
+            messages.success(request, "Conta de produtor criada! Solicite o cadastro do seu primeiro evento à equipe ÚltimoLote.")
         else:
             messages.success(request, "Conta criada! Agora é só escolher seu próximo evento. 🎉")
         return redirect("minha_conta")

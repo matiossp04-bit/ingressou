@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load dinheiro icones %}
-{% block titulo %}Painel financeiro — Ingressou{% endblock %}
+{% block titulo %}Painel financeiro — ÚltimoLote{% endblock %}
 {% block conteudo %}
 <h1 style="margin-bottom:4px">{% icon "carteira" tamanho=28 %} Painel financeiro</h1>
 <p class="muted" style="margin-bottom:20px">
-  Quanto sobra de verdade para o Ingressou em cada evento. Pedidos pendentes agora: {{ pendentes }}
+  Quanto sobra de verdade para o ÚltimoLote em cada evento. Pedidos pendentes agora: {{ pendentes }}
   · <strong>A repassar aos produtores: R$ {{ total_a_repassar|dinheiro }}</strong>
 </p>
 
@@ -14,7 +14,7 @@
     <tr>
       <th style="color:#93c5fd">Vendas</th>
       <th style="color:#93c5fd" class="num">Receita bruta</th>
-      <th style="color:#93c5fd" class="num">Taxa Ingressou</th>
+      <th style="color:#93c5fd" class="num">Taxa ÚltimoLote</th>
       <th style="color:#93c5fd" class="num">Custo gateway</th>
       <th style="color:#93c5fd" class="num">Imposto</th>
       <th style="color:#93c5fd" class="num">Repasse produtores</th>
@@ -45,10 +45,10 @@
     <tr><th>Discriminação</th><th class="num">Valor</th></tr>
     <tr><td>Receita bruta (total pago pelos compradores)</td><td class="num">R$ {{ e.receita_bruta|dinheiro }}</td></tr>
     <tr><td>(−) Taxa do Mercado Pago</td><td class="num" style="color:#c0392b">− R$ {{ e.custo_gateway|dinheiro }}</td></tr>
-    <tr><td>(−) Imposto do Ingressou (sobre a taxa de serviço)</td><td class="num" style="color:#c0392b">− R$ {{ e.imposto_plataforma|dinheiro }}</td></tr>
+    <tr><td>(−) Imposto do ÚltimoLote (sobre a taxa de serviço)</td><td class="num" style="color:#c0392b">− R$ {{ e.imposto_plataforma|dinheiro }}</td></tr>
     <tr><td>(−) Repasse ao produtor <span class="muted">(exato; impostos da parte dele são dele)</span></td><td class="num">R$ {{ e.repasse_produtor|dinheiro }}</td></tr>
     <tr style="border-top:2px solid #3b82f6">
-      <td><strong>= Lucro líquido do Ingressou</strong> ({{ e.vendas }} venda{{ e.vendas|pluralize }})</td>
+      <td><strong>= Lucro líquido do ÚltimoLote</strong> ({{ e.vendas }} venda{{ e.vendas|pluralize }})</td>
       <td class="num total-destaque">R$ {{ e.lucro_plataforma|dinheiro }}</td>
     </tr>
   </table>

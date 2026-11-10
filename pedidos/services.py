@@ -6,7 +6,7 @@ o pagamento é simulado localmente — ideal para testar todo o fluxo.
 MODO REAL: basta preencher MP_ACCESS_TOKEN e MP_PUBLIC_KEY no .env.
 O Checkout Pro do Mercado Pago redireciona o comprador para a página
 segura deles (Pix ou cartão) e confirma via webhook — nenhum dado de
-cartão passa pelo Ingressou.
+cartão passa pelo ÚltimoLote.
 """
 
 from django.conf import settings
@@ -38,7 +38,7 @@ def criar_preferencia(pedido, request):
     ]
     # A taxa da plataforma entra como item separado — transparente no checkout do MP
     itens.append({
-        "title": "Taxa de serviço Ingressou",
+        "title": "Taxa de serviço ÚltimoLote",
         "quantity": 1,
         "unit_price": float(pedido.taxa_plataforma),
         "currency_id": "BRL",

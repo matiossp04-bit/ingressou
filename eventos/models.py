@@ -13,7 +13,7 @@ class Configuracao(models.Model):
     )
     aliquota_imposto = models.DecimalField(
         "Alíquota de imposto sobre a taxa (%)", max_digits=5, decimal_places=2, default=Decimal("15.00"),
-        help_text="Imposto do Ingressou, calculado SOMENTE sobre a taxa da plataforma. Ajuste com seu contador.",
+        help_text="Imposto do ÚltimoLote, calculado SOMENTE sobre a taxa da plataforma. Ajuste com seu contador.",
     )
     taxa_mp_pix = models.DecimalField(
         "Taxa Mercado Pago — Pix (%)", max_digits=5, decimal_places=2, default=Decimal("0.99"),

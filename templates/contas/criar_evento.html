@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load icones %}
-{% block titulo %}Criar meu evento — Ingressou{% endblock %}
+{% block titulo %}Criar meu evento — ÚltimoLote{% endblock %}
 {% block conteudo %}
 <p style="margin-bottom:16px"><a href="{% url 'area_produtor' %}">← Voltar à área do produtor</a></p>
 <h1 style="margin-bottom:6px">{% icon "mic" tamanho=26 %} Criar meu evento</h1>
@@ -40,7 +40,7 @@
     <h2 style="font-size:18px;margin-bottom:8px">{% icon "ticket" tamanho=18 %} Tipos de ingresso</h2>
     <p class="muted" style="margin-bottom:12px">
       O preço que você define é <strong>exatamente o que você recebe</strong> por ingresso vendido.
-      A taxa do Ingressou é somada para o comprador no checkout.
+      A taxa do ÚltimoLote é somada para o comprador no checkout.
     </p>
     {{ formset.management_form }}
     {% for erro in formset.non_form_errors %}<p style="color:var(--vermelho);font-size:13px">{{ erro }}</p>{% endfor %}

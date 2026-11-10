@@ -1,4 +1,4 @@
-"""Envio de e-mails transacionais do Ingressou.
+"""Envio de e-mails transacionais do ÚltimoLote.
 
 Configuração via .env (ver .env.example). Sem configuração SMTP,
 usa o backend 'console': o e-mail aparece no terminal do servidor

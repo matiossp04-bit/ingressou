@@ -28,10 +28,10 @@ def _totais(pedidos):
         "vendas": pedidos.count(),
         "receita_bruta": bruto,          # tudo que entrou (comprador pagou)
         "custo_gateway": gateway,        # taxa do Mercado Pago
-        "imposto_plataforma": imposto,   # imposto do Ingressou sobre a taxa
+        "imposto_plataforma": imposto,   # imposto do ÚltimoLote sobre a taxa
         "repasse_produtor": subtotal,    # exato para o produtor (impostos dele são dele)
         "taxa_plataforma": taxa,         # os 17%
-        "lucro_plataforma": taxa - gateway - imposto,  # o que sobra para o Ingressou
+        "lucro_plataforma": taxa - gateway - imposto,  # o que sobra para o ÚltimoLote
     }
 
 

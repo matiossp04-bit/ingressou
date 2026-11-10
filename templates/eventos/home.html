@@ -1,11 +1,14 @@
 {% extends "base.html" %}
-{% load dinheiro icones %}
-{% block titulo %}Ingressou — Ingressos para os melhores eventos{% endblock %}
+{% load static dinheiro icones %}
+{% block titulo %}ÚltimoLote — Ingressos para os melhores eventos{% endblock %}
 
 {% block hero %}
 {% if destaques %}
 <section class="carrossel" id="carrossel" aria-label="Eventos em destaque">
   <div class="trilho">
+    <a class="slide" href="{% url 'home' %}#categorias" data-promo="1">
+      <img src="{% static 'img/banner-ultimolote.jpg' %}" alt="ÚltimoLote — Corre que é o último lote!">
+    </a>
     {% for evento in destaques %}
     <a class="slide" href="{% url 'evento_detalhe' evento.slug %}" data-i="{{ forloop.counter0 }}">
       {% if evento.imagem_carrossel %}
@@ -23,6 +26,7 @@
   <button class="seta esq" aria-label="Anterior" type="button">‹</button>
   <button class="seta dir" aria-label="Próximo" type="button">›</button>
   <div class="pontos">
+    <button class="ponto" data-i="promo" aria-label="Banner ÚltimoLote" type="button"></button>
     {% for evento in destaques %}
     <button class="ponto" data-i="{{ forloop.counter0 }}" aria-label="Ir para {{ evento.titulo }}" type="button"></button>
     {% endfor %}
