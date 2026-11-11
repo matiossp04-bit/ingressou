@@ -3,7 +3,6 @@
 {% block titulo %}ÚltimoLote — Ingressos para os melhores eventos{% endblock %}
 
 {% block hero %}
-{% if destaques %}
 <section class="carrossel" id="carrossel" aria-label="Eventos em destaque">
   <div class="trilho">
     <a class="slide" href="{% url 'home' %}#categorias" data-promo="1">
@@ -44,7 +43,6 @@
     {% endfor %}
   </div>
 </section>
-{% endif %}
 
 <div class="pos-hero">
   <form class="busca" method="get" action="{% url 'home' %}">
